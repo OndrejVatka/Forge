@@ -3,11 +3,21 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import { supabase } from '../lib/supabase.js';
 
+interface AuthResult {
+  error: string | null;
+}
+
+interface SignUpResult extends AuthResult {
+  /** True when Supabase requires email confirmation before a session is issued. */
+  needsConfirmation: boolean;
+}
+
 interface AuthState {
   session: Session | null;
   /** True until the initial session has been resolved. */
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (email: string, password: string) => Promise<SignUpResult>;
   signOut: () => Promise<void>;
 }
 
@@ -39,11 +49,14 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
     () => ({
       session,
       loading,
-      signInWithGoogle: async () => {
-        await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: { redirectTo: window.location.origin },
-        });
+      signIn: async (email, password) => {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        return { error: error?.message ?? null };
+      },
+      signUp: async (email, password) => {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) return { error: error.message, needsConfirmation: false };
+        return { error: null, needsConfirmation: data.session === null };
       },
       signOut: async () => {
         await supabase.auth.signOut();
