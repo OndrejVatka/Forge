@@ -6,7 +6,8 @@
   "description": "AI-native Kanban project management for Claude Code & Codex",
   "workspaces": [
     "forge-shared",
-    "forge-mcp"
+    "forge-mcp",
+    "forge-ui"
   ],
   "scripts": {
     "typecheck": "npm run typecheck --workspaces --if-present",

@@ -84,3 +84,5 @@ export interface TicketWithRelations extends Ticket {
   tags: Tag[];
   comments?: Comment[];
 }
+
+export type { Database } from './database.js';

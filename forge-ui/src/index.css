@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+
+/*
+ * Forge design tokens (from the developer brief). Dark-mode first, minimal.
+ * Tailwind v4 generates utilities from these (e.g. `bg-surface`, `text-muted`,
+ * `border-border`, `font-mono`). Status/priority colours are applied inline
+ * from data, so they live in src/lib/constants.ts rather than here.
+ */
+@theme {
+  --color-bg: #0f1117;
+  --color-surface: #1a1d27;
+  --color-surface-hover: #20242f;
+  --color-border: #2a2d3a;
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f52d6;
+  --color-text: #e2e8f0;
+  --color-muted: #64748b;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle scrollbars that fit the dark surface. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}

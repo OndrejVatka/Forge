@@ -1,12 +1,11 @@
 /**
- * Minimal hand-written Supabase `Database` type for the typed client.
- *
- * Mirrors `db/schema.sql`. We only model the tables/functions the MCP server
- * actually touches, and rely on flat queries (no typed nested joins) so this
- * stays maintainable without the generated `Relationships` machinery. Once a
- * Supabase project exists this can be replaced by `supabase gen types`.
+ * Supabase `Database` type for the typed client — the canonical schema mirror
+ * shared by the MCP server (service role) and the web UI (anon). Mirrors
+ * `db/schema.sql`. We model only what the apps touch and rely on flat queries
+ * (no typed nested joins), so this stays maintainable without generated
+ * `Relationships`. Replaceable by `supabase gen types` once desired.
  */
-import type { Project, Tag, Ticket, Comment } from '@forge/shared';
+import type { Comment, Project, Tag, Ticket } from './index.js';
 
 /**
  * Supabase's `GenericTable.Row` must be assignable to `Record<string, unknown>`.

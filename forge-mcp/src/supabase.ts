@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from './db/database.types.js';
+import type { Database } from '@forge/shared';
 import type { Env } from './env.js';
 
 export type ForgeSupabaseClient = SupabaseClient<Database>;
