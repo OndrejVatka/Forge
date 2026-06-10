@@ -56,6 +56,42 @@ export async function fetchTags(): Promise<Tag[]> {
   return data;
 }
 
+export interface ProjectInput {
+  name: string;
+  slug: string;
+  prefix: string;
+  color: string;
+  description: string | null;
+}
+
+export async function createProject(input: ProjectInput): Promise<Project> {
+  const { data, error } = await supabase.from('projects').insert(input).select('*').single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateProject(id: string, input: ProjectInput): Promise<Project> {
+  const { data, error } = await supabase
+    .from('projects')
+    .update(input)
+    .eq('id', id)
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function createTag(input: { name: string; color: string }): Promise<Tag> {
+  const { data, error } = await supabase.from('tags').insert(input).select('*').single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteTag(id: string): Promise<void> {
+  const { error } = await supabase.from('tags').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function fetchTickets(projectId: string): Promise<TicketWithRelations[]> {
   const { data, error } = await supabase
     .from('tickets')
@@ -152,4 +188,84 @@ export async function addComment(
     .single();
   if (error) throw error;
   return data;
+}
+
+/** Replace a ticket's tags with exactly the given set. */
+async function setTicketTags(ticketId: string, tagIds: string[]): Promise<void> {
+  const { error: deleteError } = await supabase
+    .from('ticket_tags')
+    .delete()
+    .eq('ticket_id', ticketId);
+  if (deleteError) throw deleteError;
+  if (tagIds.length === 0) return;
+
+  const { error } = await supabase
+    .from('ticket_tags')
+    .insert(tagIds.map((tagId) => ({ ticket_id: ticketId, tag_id: tagId })));
+  if (error) throw error;
+}
+
+export interface UpdateTicketFields {
+  title?: string;
+  description?: string | null;
+  acceptance_criteria?: string | null;
+  priority?: Priority;
+  /** When present, replaces the ticket's tags entirely. */
+  tagIds?: string[];
+}
+
+/**
+ * Update a ticket's non-status fields and/or tags, logging a `system` diff
+ * comment (mirrors the MCP `update_ticket` tool). Status changes go through
+ * updateTicketStatus so the DB trigger owns that log entry.
+ */
+export async function updateTicket(
+  existing: TicketWithRelations,
+  fields: UpdateTicketFields,
+): Promise<void> {
+  const patch: {
+    title?: string;
+    description?: string | null;
+    acceptance_criteria?: string | null;
+    priority?: Priority;
+  } = {};
+  const changes: string[] = [];
+
+  if (fields.title !== undefined && fields.title !== existing.title) {
+    patch.title = fields.title;
+    changes.push('title changed');
+  }
+  if (fields.description !== undefined && fields.description !== existing.description) {
+    patch.description = fields.description;
+    changes.push('description updated');
+  }
+  if (
+    fields.acceptance_criteria !== undefined &&
+    fields.acceptance_criteria !== existing.acceptance_criteria
+  ) {
+    patch.acceptance_criteria = fields.acceptance_criteria;
+    changes.push('acceptance criteria updated');
+  }
+  if (fields.priority !== undefined && fields.priority !== existing.priority) {
+    patch.priority = fields.priority;
+    changes.push(`priority changed from ${existing.priority} to ${fields.priority}`);
+  }
+
+  if (Object.keys(patch).length > 0) {
+    const { error } = await supabase.from('tickets').update(patch).eq('id', existing.id);
+    if (error) throw error;
+  }
+
+  if (fields.tagIds !== undefined) {
+    const currentIds = existing.tags.map((tag) => tag.id).sort();
+    const nextIds = [...new Set(fields.tagIds)].sort();
+    const changed =
+      currentIds.length !== nextIds.length || currentIds.some((id, i) => id !== nextIds[i]);
+    await setTicketTags(existing.id, fields.tagIds);
+    if (changed) changes.push('tags updated');
+  }
+
+  if (changes.length > 0) {
+    await addComment(existing.id, `Ticket updated: ${changes.join('; ')} (by human)`, 'system');
+  }
 }
