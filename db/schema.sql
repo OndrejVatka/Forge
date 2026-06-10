@@ -163,3 +163,11 @@ CREATE POLICY "auth_full_access" ON ticket_tags
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "auth_full_access" ON comments
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- ============================================================================
+-- Realtime
+-- ============================================================================
+-- Add the tables the web UI subscribes to into the realtime publication, so
+-- the board updates live when Claude Code creates or moves a ticket.
+ALTER PUBLICATION supabase_realtime ADD TABLE tickets;
+ALTER PUBLICATION supabase_realtime ADD TABLE comments;
