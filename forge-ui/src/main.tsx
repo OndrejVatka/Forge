@@ -13,7 +13,7 @@ if (!rootElement) throw new Error('Root element #root not found');
 createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AuthProvider>
           <App />
         </AuthProvider>
