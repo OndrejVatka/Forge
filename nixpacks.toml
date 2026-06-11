@@ -1,0 +1,13 @@
+# Nixpacks build config for the Forge MCP server on Railway.
+#
+# We override the install phase to use `npm install` instead of Nixpacks'
+# default `npm ci`. `npm ci` wipes node_modules before installing, which
+# collides with Railway's mounted build cache at node_modules/.cache and
+# fails with `EBUSY: resource busy or locked, rmdir .../node_modules/.cache`.
+# `npm install` updates in place and avoids the conflict.
+
+[phases.install]
+cmds = ['npm install']
+
+[phases.build]
+cmds = ['npm run build --workspace @forge/mcp']
