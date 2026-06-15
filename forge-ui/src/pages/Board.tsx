@@ -87,11 +87,11 @@ export function Board(): ReactElement {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
+      <div className="board-bar flex flex-wrap items-center gap-3 border-b border-border py-3">
         <select
           value={projectId ?? ''}
           onChange={(event) => setProjectId(event.target.value)}
-          className="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-primary"
+          className="tap-target rounded-lg border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-primary"
         >
           {projects.map((project) => (
             <option key={project.id} value={project.id}>
@@ -111,7 +111,7 @@ export function Board(): ReactElement {
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+          className="tap-target ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
         >
           <Plus size={16} />
           <span className="hidden sm:inline">New ticket</span>
@@ -122,7 +122,7 @@ export function Board(): ReactElement {
         <FullScreenLoader />
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="flex min-h-0 flex-1 gap-3 overflow-x-auto p-4">
+          <div className="board-scroll flex min-h-0 flex-1 gap-3 overflow-x-auto">
             {STATUS_ORDER.map((status) => (
               <Column
                 key={status}

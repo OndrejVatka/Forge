@@ -28,7 +28,7 @@ export function FilterBar({
             key={option}
             type="button"
             onClick={() => onPriorityChange(option)}
-            className={`rounded-md px-2.5 py-1 text-xs capitalize transition-colors ${
+            className={`tap-target-sm inline-flex items-center justify-center rounded-md px-2.5 py-1 text-xs capitalize transition-colors ${
               priority === option ? 'bg-primary text-white' : 'text-muted hover:text-text'
             }`}
           >
@@ -46,7 +46,7 @@ export function FilterBar({
                 key={tag.id}
                 type="button"
                 onClick={() => onToggleTag(tag.name)}
-                className="rounded border px-1.5 py-0.5 text-[11px] font-medium transition-opacity"
+                className="tap-target-sm inline-flex items-center rounded border px-1.5 py-0.5 text-[11px] font-medium transition-opacity"
                 style={{
                   backgroundColor: active ? `${tag.color}33` : 'transparent',
                   color: tag.color,

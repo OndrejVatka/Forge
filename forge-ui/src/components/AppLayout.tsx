@@ -19,7 +19,7 @@ export function AppLayout(): ReactElement {
           <NavLink
             to="/settings"
             className={({ isActive }) =>
-              `flex items-center gap-1.5 rounded-md px-2.5 py-1.5 transition-colors hover:bg-surface-hover ${
+              `tap-target flex items-center gap-1.5 rounded-md px-2.5 py-1.5 transition-colors hover:bg-surface-hover ${
                 isActive ? 'text-text' : 'text-muted'
               }`
             }
@@ -34,7 +34,7 @@ export function AppLayout(): ReactElement {
           <button
             type="button"
             onClick={() => void signOut()}
-            className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-text"
+            className="tap-target flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-text"
             title="Sign out"
           >
             <LogOut size={16} />

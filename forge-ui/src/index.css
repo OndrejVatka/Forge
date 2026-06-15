@@ -47,6 +47,42 @@ body {
   padding-right: calc(1rem + env(safe-area-inset-right));
 }
 
+/* Board filter bar: clear the landscape notch on the sides. */
+.board-bar {
+  padding-left: calc(1rem + env(safe-area-inset-left));
+  padding-right: calc(1rem + env(safe-area-inset-right));
+}
+
+/*
+ * Scrolling column area: clear the side notch + the bottom home indicator,
+ * and let columns page cleanly on touch. On desktop the columns fill the
+ * width (no overflow), so scroll-snap is inert there.
+ */
+.board-scroll {
+  padding-top: 1rem;
+  padding-left: calc(1rem + env(safe-area-inset-left));
+  padding-right: calc(1rem + env(safe-area-inset-right));
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  scroll-snap-type: x proximity;
+}
+.board-column {
+  scroll-snap-align: start;
+}
+
+/*
+ * Comfortable touch targets on coarse pointers (touch) without inflating the
+ * dense desktop layout — fine-pointer (mouse) devices keep the compact sizing.
+ * 2.75rem ≈ the 44px iOS minimum; the -sm variant suits grouped chip filters.
+ */
+@media (pointer: coarse) {
+  .tap-target {
+    min-height: 2.75rem;
+  }
+  .tap-target-sm {
+    min-height: 2.25rem;
+  }
+}
+
 /* Subtle scrollbars that fit the dark surface. */
 * {
   scrollbar-width: thin;

@@ -13,7 +13,7 @@ export function Column({ status, tickets }: ColumnProps): ReactElement {
   const meta = STATUS_META[status];
 
   return (
-    <div className="flex min-w-[260px] flex-1 flex-col rounded-lg border border-border/60 bg-surface/30">
+    <div className="board-column flex min-w-[260px] flex-1 flex-col rounded-lg border border-border/60 bg-surface/30">
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />
         <span className="text-sm font-medium">{meta.label}</span>
