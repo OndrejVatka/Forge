@@ -9,7 +9,7 @@ export function AppLayout(): ReactElement {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center justify-between border-b border-border px-4 py-3">
+      <header className="app-header flex items-center justify-between border-b border-border">
         <Link to="/" className="flex items-center gap-2 font-semibold">
           <Zap size={18} className="text-primary" />
           <span>Forge</span>

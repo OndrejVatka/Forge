@@ -34,6 +34,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * iOS safe-area handling. The PWA uses apple-mobile-web-app-status-bar-style
+ * "black-translucent" + viewport-fit=cover, so web content draws underneath
+ * the status bar / notch / home indicator. These insets push chrome clear of
+ * it. On non-notch devices env(safe-area-inset-*) resolves to 0 (no change).
+ */
+.app-header {
+  padding-top: calc(0.75rem + env(safe-area-inset-top));
+  padding-bottom: 0.75rem;
+  padding-left: calc(1rem + env(safe-area-inset-left));
+  padding-right: calc(1rem + env(safe-area-inset-right));
+}
+
 /* Subtle scrollbars that fit the dark surface. */
 * {
   scrollbar-width: thin;
