@@ -1,0 +1,65 @@
+name: Bug report
+description: Something isn't working as expected
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please don't include any keys, tokens, or `.env` contents below —
+        redact them before pasting logs.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which part?
+      options:
+        - Web UI (forge-ui)
+        - MCP server (forge-mcp)
+        - Database / schema
+        - Setup or deployment
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Running where?
+      options:
+        - Local development
+        - Deployed (Vercel / Railway)
+        - Both
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node version
+      placeholder: 'output of: node --version'
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or errors
+      description: Browser console, server logs, or Supabase errors. Redact any secrets.
+      render: shell

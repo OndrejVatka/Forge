@@ -1,0 +1,47 @@
+name: Setup help
+description: Something in the setup or deployment isn't working
+labels: ['question']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Forge is self-hosted, so setup involves a few moving parts. Happy to help.
+
+        **Please don't paste keys, tokens, or `.env` contents** — redact them first.
+
+  - type: textarea
+    id: stuck
+    attributes:
+      label: Where are you stuck?
+      description: Which setup step, and what happens when you try it?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: step
+    attributes:
+      label: Which step?
+      options:
+        - Supabase project / running schema.sql
+        - Signing in to the web UI
+        - Running the MCP server
+        - Connecting Claude Code or Codex
+        - Deploying to Vercel or Railway
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: errors
+    attributes:
+      label: Errors you're seeing
+      description: Browser console, terminal output, or Supabase errors. Redact any secrets.
+      render: shell
+
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: Quick checks
+      options:
+        - label: I read the [setup section](https://github.com/OndrejVatka/Forge#setup) of the README
+        - label: My email is in the `allowed_users` table and matches my Supabase auth user
