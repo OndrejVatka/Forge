@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "description": "AI-native Kanban project management for Claude Code & Codex",
+  "license": "MIT",
   "workspaces": [
     "forge-shared",
     "forge-mcp",

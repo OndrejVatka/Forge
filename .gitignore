@@ -21,3 +21,6 @@ coverage
 
 # Deploy
 .vercel
+
+# Local-only security audit output
+SECURITY_REVIEW.md

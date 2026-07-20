@@ -138,10 +138,58 @@ CREATE TRIGGER tickets_status_change
   FOR EACH ROW EXECUTE FUNCTION log_ticket_status_change();
 
 -- ============================================================================
--- Row Level Security
+-- Access control
 -- ============================================================================
--- The MCP server uses the service role key (bypasses RLS). The web UI uses the
--- anon key as an authenticated (Google-logged-in) user — full access below.
+-- Forge is a single-operator tool: there is no per-user ownership in the data
+-- model, so anyone with access sees the whole board. Access is therefore an
+-- explicit allowlist of email addresses rather than "any logged-in user".
+--
+-- Two clients, two paths:
+--   * The MCP server uses the service role key, which bypasses RLS entirely.
+--   * The web UI uses the anon key as an authenticated user, and every policy
+--     below requires that user's email to be present in `allowed_users`.
+--
+-- Signing up is still possible unless you also disable it in the Supabase
+-- dashboard (Authentication -> Sign In / Providers -> Email). It just gets the
+-- stranger nothing: no row in `allowed_users` means every read returns empty
+-- and every write is rejected.
+
+-- Emails permitted to use the board. Seed this with your own address BEFORE
+-- running the policies below, or you will lock yourself out of your own app.
+CREATE TABLE allowed_users (
+  email TEXT PRIMARY KEY,
+  note TEXT,                             -- optional: who this is
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- No policy is defined for `allowed_users`, which means no client using the
+-- anon key can read or modify it. Manage it from the SQL Editor or the Table
+-- Editor (both run as the service role).
+ALTER TABLE allowed_users ENABLE ROW LEVEL SECURITY;
+
+-- TODO: replace with your own email before running this file.
+INSERT INTO allowed_users (email, note) VALUES ('you@example.com', 'owner');
+
+/**
+ * True when the caller's JWT email is on the allowlist.
+ *
+ * SECURITY DEFINER is required: `allowed_users` is unreadable by the
+ * `authenticated` role, so the check has to run as the function owner.
+ * `search_path` is pinned to defeat search-path hijacking, which is the
+ * standard hardening for a SECURITY DEFINER function.
+ */
+CREATE OR REPLACE FUNCTION is_allowed_user()
+RETURNS BOOLEAN
+LANGUAGE SQL
+SECURITY DEFINER
+STABLE
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.allowed_users
+    WHERE lower(email) = lower(auth.jwt() ->> 'email')
+  );
+$$;
 
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_ticket_sequences ENABLE ROW LEVEL SECURITY;
@@ -150,19 +198,27 @@ ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ticket_tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 
--- Authenticated users (logged-in via Google) can read/write everything.
-CREATE POLICY "auth_full_access" ON projects
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "auth_full_access" ON project_ticket_sequences
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "auth_full_access" ON tickets
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "auth_full_access" ON tags
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "auth_full_access" ON ticket_tags
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "auth_full_access" ON comments
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+-- Allowlisted users can read/write everything; everyone else sees nothing.
+-- `is_allowed_user()` is wrapped in a scalar subquery so Postgres evaluates it
+-- once per statement rather than once per row.
+CREATE POLICY "allowlisted_full_access" ON projects
+  FOR ALL TO authenticated
+  USING ((SELECT is_allowed_user())) WITH CHECK ((SELECT is_allowed_user()));
+CREATE POLICY "allowlisted_full_access" ON project_ticket_sequences
+  FOR ALL TO authenticated
+  USING ((SELECT is_allowed_user())) WITH CHECK ((SELECT is_allowed_user()));
+CREATE POLICY "allowlisted_full_access" ON tickets
+  FOR ALL TO authenticated
+  USING ((SELECT is_allowed_user())) WITH CHECK ((SELECT is_allowed_user()));
+CREATE POLICY "allowlisted_full_access" ON tags
+  FOR ALL TO authenticated
+  USING ((SELECT is_allowed_user())) WITH CHECK ((SELECT is_allowed_user()));
+CREATE POLICY "allowlisted_full_access" ON ticket_tags
+  FOR ALL TO authenticated
+  USING ((SELECT is_allowed_user())) WITH CHECK ((SELECT is_allowed_user()));
+CREATE POLICY "allowlisted_full_access" ON comments
+  FOR ALL TO authenticated
+  USING ((SELECT is_allowed_user())) WITH CHECK ((SELECT is_allowed_user()));
 
 -- ============================================================================
 -- Realtime
