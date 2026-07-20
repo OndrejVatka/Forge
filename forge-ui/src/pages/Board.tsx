@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { Link } from 'react-router-dom';
 import { Column } from '../components/Column.js';
 import { FilterBar, type PriorityFilter } from '../components/FilterBar.js';
+import { MoltenBanner } from '../components/MoltenBanner.js';
 import { FullScreenLoader } from '../components/Spinner.js';
 import { TicketModal } from '../components/TicketModal.js';
 import { useProjects } from '../hooks/useProjects.js';
@@ -89,6 +90,8 @@ export function Board(): ReactElement {
 
   return (
     <div className="flex h-full flex-col">
+      <MoltenBanner />
+
       <div className="board-bar flex flex-wrap items-center gap-3 border-b border-border py-3">
         <select
           value={projectId ?? ''}
