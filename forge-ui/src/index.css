@@ -20,6 +20,108 @@
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
+/*
+ * Molten Forge — an alternate 8-bit skin, toggled from the app header via
+ * `data-theme="molten"` on <html>. Tailwind v4 compiles its utilities down to
+ * `var(--color-*)`, so overriding those custom properties re-skins the whole
+ * app without touching markup. Only the things utilities cannot express
+ * (radii, border weights, glows) need explicit rules below.
+ *
+ * Status/priority colours come from ticket data as inline styles, so those are
+ * swapped in src/lib/constants.ts instead — CSS cannot reach them.
+ */
+:root[data-theme='molten'] {
+  --color-bg: #0c0806;
+  --color-surface: #150b06;
+  --color-surface-hover: #2a1810;
+  --color-border: #4a3020;
+  --color-primary: #ff6d00;
+  --color-primary-hover: #ff9e40;
+  --color-text: #f5e6d3;
+  --color-muted: #bfa08a;
+
+  --font-sans: 'VT323', ui-monospace, monospace;
+  --font-mono: 'VT323', ui-monospace, monospace;
+
+  /* Not Tailwind tokens — consumed by the rules below. */
+  --molten-card: #1e120a;
+  --molten-hot: #ff6d00;
+  --molten-accent: #ff9e40;
+  --molten-display: 'Press Start 2P', monospace;
+}
+
+/*
+ * VT323 renders roughly two sizes small at the same px value, so the base
+ * ramp is scaled up to keep the same optical size as Inter.
+ */
+:root[data-theme='molten'] body {
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+/* Hard rectangular panels — the theme drops the rounded-corner system. */
+:root[data-theme='molten'] [class*='rounded'] {
+  border-radius: 0;
+}
+
+/* Chunky borders are the primary retro signal, replacing 1px hairlines. */
+:root[data-theme='molten'] .border {
+  border-width: 2px;
+}
+
+/* Cards sit lighter than their column so they read as forged plates. */
+:root[data-theme='molten'] .bg-surface {
+  background-color: var(--molten-card);
+}
+
+/* Ticket refs and other mono runs pick up the ember accent. */
+:root[data-theme='molten'] .font-mono {
+  color: var(--molten-accent);
+}
+
+/* Wordmark only — Press Start 2P is a bitmap face, unreadable as body text. */
+:root[data-theme='molten'] .app-wordmark {
+  font-family: var(--molten-display);
+  font-size: 0.85rem;
+  color: var(--molten-accent);
+  text-shadow: 0 0 10px var(--molten-hot);
+}
+
+:root[data-theme='molten'] .app-header {
+  background: linear-gradient(180deg, #2a1508, #1a0d05);
+  border-bottom: 4px solid var(--molten-hot);
+}
+
+:root[data-theme='molten'] .board-bar {
+  border-bottom-width: 2px;
+}
+
+/* The in-progress column runs hot; its cards glow. */
+:root[data-theme='molten'] .board-column {
+  border-width: 3px;
+}
+
+:root[data-theme='molten'] .board-column[data-status='in_dev'] {
+  border-color: var(--molten-hot);
+}
+
+:root[data-theme='molten'] .board-column[data-status='in_dev'] .ticket-card {
+  border-color: var(--molten-hot);
+  box-shadow: 0 0 14px #ff6d0055;
+}
+
+/* Shipped work has cooled down. */
+:root[data-theme='molten'] .board-column[data-status='done'] .ticket-card {
+  opacity: 0.65;
+}
+
+/* Square status markers — blocky, not rounded. */
+:root[data-theme='molten'] .status-dot {
+  border-radius: 0;
+  height: 12px;
+  width: 12px;
+}
+
 html,
 body,
 #root {

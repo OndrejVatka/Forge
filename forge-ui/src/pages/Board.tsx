@@ -12,12 +12,14 @@ import { useRealtime } from '../hooks/useRealtime.js';
 import { useTags } from '../hooks/useTags.js';
 import { useTickets, useUpdateTicketStatus } from '../hooks/useTickets.js';
 import { STATUS_ORDER } from '../lib/constants.js';
+import { useTheme } from '../theme/ThemeProvider.js';
 
 const PROJECT_STORAGE_KEY = 'forge.projectId';
 
 export function Board(): ReactElement {
   const projectsQuery = useProjects();
   const tagsQuery = useTags();
+  const { theme } = useTheme();
 
   const [projectId, setProjectId] = useState<string | undefined>(
     () => localStorage.getItem(PROJECT_STORAGE_KEY) ?? undefined,
@@ -114,7 +116,9 @@ export function Board(): ReactElement {
           className="tap-target ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
         >
           <Plus size={16} />
-          <span className="hidden sm:inline">New ticket</span>
+          <span className="hidden sm:inline">
+            {theme === 'molten' ? 'Forge new ticket' : 'New ticket'}
+          </span>
         </button>
       </div>
 
