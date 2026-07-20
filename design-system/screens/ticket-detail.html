@@ -1,0 +1,296 @@
+<!-- @dsCard group="Screens" -->
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-hover: #20242f;
+    --border: #2a2d3a;
+    --primary: #6366f1;
+    --primary-hover: #4f52d6;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --st-backlog: #475569;
+    --st-in-dev: #3b82f6;
+    --st-review: #f59e0b;
+    --st-done: #10b981;
+    --pr-low: #64748b;
+    --pr-medium: #6366f1;
+    --pr-high: #ef4444;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .spec-title {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+  .card {
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 12px;
+    transition: border-color 0.15s;
+    width: 248px;
+  }
+  .card:hover {
+    border-color: color-mix(in srgb, var(--primary) 50%, transparent);
+  }
+  .card-ref {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .card-title {
+    margin-top: 4px;
+    padding-right: 16px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .chips {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 4px;
+    border: 1px solid;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .prio {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 9999px;
+    display: inline-block;
+    flex: none;
+  }
+  .bolt {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    color: var(--primary);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 0;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover {
+    background: var(--primary-hover);
+  }
+  .select {
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 6px 12px;
+    font-size: 14px;
+    outline: none;
+  }
+  .select:focus {
+    border-color: var(--primary);
+  }
+</style>
+<div style="max-width: 672px; margin: 0 auto">
+  <div
+    style="
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    "
+  >
+    &larr; Board
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px">
+    <span style="font-family: var(--font-mono); font-size: 14px; color: var(--muted)"
+      >FORGE-142</span
+    >
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#6366f1"
+      stroke-width="2"
+      stroke-linejoin="round"
+    >
+      <path d="M4 14h7l-1 8 10-12h-7l1-8z" />
+    </svg>
+  </div>
+
+  <h1 style="font-size: 18px; font-weight: 600; margin-bottom: 16px">
+    Board safe-area insets on iOS PWA
+  </h1>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 20px">
+    <label
+      style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted)"
+      >Status
+      <select class="select">
+        <option>In Dev</option>
+      </select>
+    </label>
+    <label
+      style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted)"
+      >Priority
+      <select class="select">
+        <option>High</option>
+      </select>
+    </label>
+    <div
+      style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted)"
+    >
+      Tags
+      <div style="display: flex; gap: 4px; padding-top: 6px">
+        <span class="chip" style="background: #ef444433; color: #ef4444; border-color: #ef444455"
+          >bug</span
+        >
+        <span
+          class="chip"
+          style="background: transparent; color: #10b981; border-color: #10b98155; opacity: 0.6"
+          >feature</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size: 12px; color: var(--muted); margin-bottom: 6px">Description</div>
+  <div
+    style="
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    "
+  >
+    Content draws under the status bar because the PWA uses
+    <code
+      style="
+        font-family: var(--font-mono);
+        font-size: 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 5px;
+      "
+      >black-translucent</code
+    >
+    with
+    <code
+      style="
+        font-family: var(--font-mono);
+        font-size: 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 5px;
+      "
+      >viewport-fit=cover</code
+    >.
+    <div style="margin-top: 8px; color: var(--muted)">Acceptance criteria</div>
+    <ul style="padding-left: 20px; margin-top: 4px">
+      <li>Header clears the notch in portrait and landscape</li>
+      <li>Columns clear the home indicator</li>
+    </ul>
+  </div>
+
+  <div style="font-size: 12px; color: var(--muted); margin-bottom: 6px">Activity</div>
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="border-left: 2px solid var(--border); padding-left: 12px">
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--muted)">
+        claude-code · 2h ago
+      </div>
+      <div style="font-size: 14px; margin-top: 2px">Moved from <b>Backlog</b> to <b>In Dev</b></div>
+    </div>
+    <div style="border-left: 2px solid var(--border); padding-left: 12px">
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--muted)">
+        human · 1h ago
+      </div>
+      <div style="font-size: 14px; margin-top: 2px">
+        Confirmed on a device with a notch — landscape sides were the miss.
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 14px; display: flex; gap: 8px">
+    <input
+      placeholder="Add a comment…"
+      style="
+        flex: 1;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        color: var(--text);
+        padding: 8px 12px;
+        font-size: 14px;
+        outline: none;
+      "
+    />
+    <button class="btn">Comment</button>
+  </div>
+</div>
+<div class="label" style="margin-top: 16px">
+  TicketDetail — single centred column, max-width 672px. Title and description edit in place (click
+  to edit, blur/Enter saves). Status &amp; priority mutate immediately on change.
+</div>

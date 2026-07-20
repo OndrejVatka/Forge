@@ -1,0 +1,170 @@
+<!-- @dsCard group="Foundations" -->
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-hover: #20242f;
+    --border: #2a2d3a;
+    --primary: #6366f1;
+    --primary-hover: #4f52d6;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --st-backlog: #475569;
+    --st-in-dev: #3b82f6;
+    --st-review: #f59e0b;
+    --st-done: #10b981;
+    --pr-low: #64748b;
+    --pr-medium: #6366f1;
+    --pr-high: #ef4444;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .spec-title {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+  .card {
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 12px;
+    transition: border-color 0.15s;
+    width: 248px;
+  }
+  .card:hover {
+    border-color: color-mix(in srgb, var(--primary) 50%, transparent);
+  }
+  .card-ref {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .card-title {
+    margin-top: 4px;
+    padding-right: 16px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .chips {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 4px;
+    border: 1px solid;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .prio {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 9999px;
+    display: inline-block;
+    flex: none;
+  }
+  .bolt {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    color: var(--primary);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 0;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover {
+    background: var(--primary-hover);
+  }
+  .select {
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 6px 12px;
+    font-size: 14px;
+    outline: none;
+  }
+  .select:focus {
+    border-color: var(--primary);
+  }
+</style>
+<div class="spec-title">Typography</div>
+<div class="stack">
+  <div>
+    <div class="label">font-sans — Inter / system-ui</div>
+    <div style="font-size: 18px; font-weight: 600; margin-top: 4px">Page title — 18px / 600</div>
+    <div style="font-size: 14px; font-weight: 500; margin-top: 4px">Card title — 14px / 500</div>
+    <div style="font-size: 14px; margin-top: 4px">Body &amp; controls — 14px / 400</div>
+    <div style="font-size: 12px; color: var(--muted); margin-top: 4px">
+      Meta &amp; counts — 12px / 400 muted
+    </div>
+    <div style="font-size: 11px; color: var(--muted); margin-top: 4px">
+      Chips &amp; badges — 11px / 500
+    </div>
+  </div>
+  <div>
+    <div class="label">font-mono — JetBrains Mono</div>
+    <div
+      style="font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 4px"
+    >
+      FORGE-142 &nbsp; ticket refs, timestamps, code
+    </div>
+  </div>
+</div>
