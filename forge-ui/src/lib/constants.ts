@@ -58,4 +58,4 @@ export function priorityMeta(theme: Theme, priority: Priority): PriorityMeta {
 }
 
 /** Creators whose tickets get the ⚡ AI-built indicator. */
-export const AI_CREATORS = ['claude-code', 'codex'] as const;
+export const AI_CREATORS = ['claude-code', 'codex', 'hermes'] as const;

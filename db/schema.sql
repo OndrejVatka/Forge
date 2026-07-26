@@ -60,7 +60,7 @@ CREATE TABLE tickets (
   priority TEXT NOT NULL DEFAULT 'medium'
     CHECK (priority IN ('low', 'medium', 'high')),
   created_by TEXT NOT NULL DEFAULT 'human'
-    CHECK (created_by IN ('human', 'claude-code', 'codex')),
+    CHECK (created_by IN ('human', 'claude-code', 'codex', 'hermes')),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -82,7 +82,7 @@ CREATE TABLE comments (
   ticket_id UUID NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
   body TEXT NOT NULL,                    -- markdown supported
   author TEXT NOT NULL DEFAULT 'human'
-    CHECK (author IN ('human', 'claude-code', 'codex', 'system')),
+    CHECK (author IN ('human', 'claude-code', 'codex', 'hermes', 'system')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

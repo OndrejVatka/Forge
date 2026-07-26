@@ -6,6 +6,7 @@ const AUTHOR_LABELS: Record<CommentAuthor, string> = {
   human: 'Human',
   'claude-code': 'Claude Code',
   codex: 'Codex',
+  hermes: 'Hermes',
   system: 'System',
 };
 
