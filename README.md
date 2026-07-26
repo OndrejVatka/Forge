@@ -97,6 +97,8 @@ npm run dev --workspace @forge/mcp
 
 Generate `FORGE_API_KEY` with `openssl rand -hex 32`. It's the shared secret your agent sends as a Bearer token — there's no user identity in the MCP layer, just this key.
 
+Each environment gets its own value. The one in `forge-mcp/.env` guards your local server only; when you deploy, Railway gets a separate key. Whichever URL an agent points at decides which key it needs.
+
 Check it's alive:
 
 ```bash
@@ -110,7 +112,7 @@ Against your local server:
 
 ```bash
 claude mcp add --transport http forge http://localhost:3000/mcp \
-  --header "Authorization: Bearer <your FORGE_API_KEY>"
+  --header "Authorization: Bearer <FORGE_API_KEY from forge-mcp/.env>"
 ```
 
 Then ask Claude Code to `list_projects`. If you get your project back, the loop is closed — try "create a ticket for the login bug" and watch it appear on the board.
@@ -124,15 +126,17 @@ Then ask Claude Code to `list_projects`. If you get your project back, the loop 
 Railway picks up [`railway.json`](railway.json) and [`nixpacks.toml`](nixpacks.toml) automatically.
 
 1. Create a project from your GitHub repo.
-2. Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FORGE_API_KEY` under **Variables**.
+2. Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FORGE_API_KEY` under **Variables**. Generate a **fresh** `FORGE_API_KEY` here rather than reusing your local one — production shouldn't share a secret with a file on your laptop.
 3. Deploy. The healthcheck at `/health` should go green.
-4. Re-point Claude Code at the deployed URL:
+4. Re-point Claude Code at the deployed URL, using the key you just set in Railway:
 
 ```bash
 claude mcp remove forge
 claude mcp add --transport http forge https://<your-app>.up.railway.app/mcp \
-  --header "Authorization: Bearer <your FORGE_API_KEY>"
+  --header "Authorization: Bearer <FORGE_API_KEY from Railway Variables>"
 ```
+
+> **Getting a bare `401 {"error":"Unauthorized"}`?** Almost always the local key pointed at the deployed URL, or a trailing newline picked up when copying out of the Railway dashboard. The auth middleware answers identically for every failure — by design, so it can't be used to probe for a valid key — so the response won't tell you which. Re-copy the value from Railway and check for stray whitespace.
 
 ### Web UI → Vercel
 
