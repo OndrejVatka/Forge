@@ -21,12 +21,12 @@ export const prioritySchema = z.enum(PRIORITIES);
 export type Priority = z.infer<typeof prioritySchema>;
 
 /** Who/what created a ticket. */
-export const TICKET_CREATORS = ['human', 'claude-code', 'codex'] as const;
+export const TICKET_CREATORS = ['human', 'claude-code', 'codex', 'hermes'] as const;
 export const ticketCreatorSchema = z.enum(TICKET_CREATORS);
 export type TicketCreator = z.infer<typeof ticketCreatorSchema>;
 
 /** Comment authors — superset of ticket creators plus the automated `system`. */
-export const COMMENT_AUTHORS = ['human', 'claude-code', 'codex', 'system'] as const;
+export const COMMENT_AUTHORS = ['human', 'claude-code', 'codex', 'hermes', 'system'] as const;
 export const commentAuthorSchema = z.enum(COMMENT_AUTHORS);
 export type CommentAuthor = z.infer<typeof commentAuthorSchema>;
 

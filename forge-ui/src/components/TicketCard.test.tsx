@@ -43,6 +43,11 @@ describe('TicketCard', () => {
     expect(screen.getByLabelText('Created by claude-code')).toBeInTheDocument();
   });
 
+  it('should show the ⚡ indicator for hermes-created tickets', () => {
+    renderCard(makeTicket({ created_by: 'hermes' }));
+    expect(screen.getByLabelText('Created by hermes')).toBeInTheDocument();
+  });
+
   it('should not show the ⚡ indicator for human-created tickets', () => {
     renderCard(makeTicket({ created_by: 'human' }));
     expect(screen.queryByLabelText(/Created by/)).not.toBeInTheDocument();
