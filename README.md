@@ -1,6 +1,6 @@
 # Forge
 
-**AI-native, Kanban-style project management for developers working with Claude Code & Codex.**
+**AI-native, Kanban-style project management for developers working with Claude Code, Codex & Hermes.**
 
 Forge gives your coding agent a real project board. It exposes an **MCP server** so Claude Code can create tickets, move them across columns, and leave comments as it works — plus a mobile-first **React PWA** where you see all of it happen live.
 
@@ -14,7 +14,7 @@ The point: stop losing "I'll do that later" to chat scrollback. Your agent files
 
 ```mermaid
 flowchart LR
-    CC["Claude Code / Codex"] -->|"MCP over HTTPS<br/>Bearer token"| MCP["forge-mcp<br/>(Railway)"]
+    CC["Claude Code / Codex / Hermes"] -->|"MCP over HTTPS<br/>Bearer token"| MCP["forge-mcp<br/>(Railway)"]
     MCP -->|"service role key"| DB[("Supabase<br/>Postgres")]
     UI["forge-ui PWA<br/>(Vercel)"] -->|"anon key + RLS"| DB
     DB -.->|"Realtime"| UI
@@ -27,6 +27,7 @@ Two write paths, one database. Your agent writes through the MCP server; you wri
 - **7 MCP tools** — `list_projects`, `create_ticket`, `list_tickets`, `get_ticket`, `update_ticket`, `update_ticket_status`, `add_comment`
 - **Live board** — drag-and-drop across `backlog → in_dev → review → done`, updating in real time
 - **Automatic activity log** — every status change is recorded by a Postgres trigger, so agent moves and human moves are logged identically
+- **Agent attribution** — tickets and comments record their author (`claude-code`, `codex`, `hermes`, or `human`), and agent-created tickets carry a ⚡ on the board
 - **Human-readable ticket refs** — `PI-42`, `SB-7`, atomically numbered per project
 - **Markdown** descriptions, acceptance criteria, and comments
 - **Multi-project** with tags, priorities, and filtering

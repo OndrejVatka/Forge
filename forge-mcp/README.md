@@ -1,6 +1,6 @@
 # @forge/mcp
 
-The Forge MCP server — a stateless **Streamable HTTP** MCP server (Node + Express) that lets Claude Code / Codex create and manage tickets. Backed by Supabase via the service-role key; secured with a Bearer API key.
+The Forge MCP server — a stateless **Streamable HTTP** MCP server (Node + Express) that lets Claude Code / Codex / Hermes create and manage tickets. Backed by Supabase via the service-role key; secured with a Bearer API key.
 
 ## Tools
 
