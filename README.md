@@ -1,6 +1,6 @@
 # Forge
 
-**AI-native, Kanban-style project management for developers working with Claude Code & Codex.**
+**AI-native, Kanban-style project management for developers working with Claude Code, Codex & Hermes.**
 
 Forge gives your coding agent a real project board. It exposes an **MCP server** so Claude Code can create tickets, move them across columns, and leave comments as it works — plus a mobile-first **React PWA** where you see all of it happen live.
 
@@ -14,7 +14,7 @@ The point: stop losing "I'll do that later" to chat scrollback. Your agent files
 
 ```mermaid
 flowchart LR
-    CC["Claude Code / Codex"] -->|"MCP over HTTPS<br/>Bearer token"| MCP["forge-mcp<br/>(Railway)"]
+    CC["Claude Code / Codex / Hermes"] -->|"MCP over HTTPS<br/>Bearer token"| MCP["forge-mcp<br/>(Railway)"]
     MCP -->|"service role key"| DB[("Supabase<br/>Postgres")]
     UI["forge-ui PWA<br/>(Vercel)"] -->|"anon key + RLS"| DB
     DB -.->|"Realtime"| UI
@@ -27,6 +27,7 @@ Two write paths, one database. Your agent writes through the MCP server; you wri
 - **7 MCP tools** — `list_projects`, `create_ticket`, `list_tickets`, `get_ticket`, `update_ticket`, `update_ticket_status`, `add_comment`
 - **Live board** — drag-and-drop across `backlog → in_dev → review → done`, updating in real time
 - **Automatic activity log** — every status change is recorded by a Postgres trigger, so agent moves and human moves are logged identically
+- **Agent attribution** — tickets and comments record their author (`claude-code`, `codex`, `hermes`, or `human`), and agent-created tickets carry a ⚡ on the board
 - **Human-readable ticket refs** — `PI-42`, `SB-7`, atomically numbered per project
 - **Markdown** descriptions, acceptance criteria, and comments
 - **Multi-project** with tags, priorities, and filtering
@@ -97,6 +98,8 @@ npm run dev --workspace @forge/mcp
 
 Generate `FORGE_API_KEY` with `openssl rand -hex 32`. It's the shared secret your agent sends as a Bearer token — there's no user identity in the MCP layer, just this key.
 
+Each environment gets its own value. The one in `forge-mcp/.env` guards your local server only; when you deploy, Railway gets a separate key. Whichever URL an agent points at decides which key it needs.
+
 Check it's alive:
 
 ```bash
@@ -110,7 +113,7 @@ Against your local server:
 
 ```bash
 claude mcp add --transport http forge http://localhost:3000/mcp \
-  --header "Authorization: Bearer <your FORGE_API_KEY>"
+  --header "Authorization: Bearer <FORGE_API_KEY from forge-mcp/.env>"
 ```
 
 Then ask Claude Code to `list_projects`. If you get your project back, the loop is closed — try "create a ticket for the login bug" and watch it appear on the board.
@@ -124,15 +127,17 @@ Then ask Claude Code to `list_projects`. If you get your project back, the loop 
 Railway picks up [`railway.json`](railway.json) and [`nixpacks.toml`](nixpacks.toml) automatically.
 
 1. Create a project from your GitHub repo.
-2. Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FORGE_API_KEY` under **Variables**.
+2. Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FORGE_API_KEY` under **Variables**. Generate a **fresh** `FORGE_API_KEY` here rather than reusing your local one — production shouldn't share a secret with a file on your laptop.
 3. Deploy. The healthcheck at `/health` should go green.
-4. Re-point Claude Code at the deployed URL:
+4. Re-point Claude Code at the deployed URL, using the key you just set in Railway:
 
 ```bash
 claude mcp remove forge
 claude mcp add --transport http forge https://<your-app>.up.railway.app/mcp \
-  --header "Authorization: Bearer <your FORGE_API_KEY>"
+  --header "Authorization: Bearer <FORGE_API_KEY from Railway Variables>"
 ```
+
+> **Getting a bare `401 {"error":"Unauthorized"}`?** Almost always the local key pointed at the deployed URL, or a trailing newline picked up when copying out of the Railway dashboard. The auth middleware answers identically for every failure — by design, so it can't be used to probe for a valid key — so the response won't tell you which. Re-copy the value from Railway and check for stray whitespace.
 
 ### Web UI → Vercel
 
