@@ -96,7 +96,7 @@ cp forge-mcp/.env.example forge-mcp/.env
 npm run dev --workspace @forge/mcp
 ```
 
-Generate `FORGE_API_KEY` with `openssl rand -hex 32`. It's the shared secret your agent sends as a Bearer token — there's no user identity in the MCP layer, just this key.
+Generate `FORGE_API_KEY` with `openssl rand -hex 32`. It's the secret your agent sends as a Bearer token — there are no user accounts in the MCP layer, just keys. The key a request presents also decides how its writes are attributed, so if you run more than one agent, give each its own — see [Agent identity comes from the API key](#agent-identity-comes-from-the-api-key).
 
 Each environment gets its own value. The one in `forge-mcp/.env` guards your local server only; when you deploy, Railway gets a separate key. Whichever URL an agent points at decides which key it needs.
 
@@ -161,7 +161,10 @@ claude mcp add --transport http forge https://<your-app>.up.railway.app/mcp \
 | `PORT` | no | Listen port (default `3000`) |
 | `SUPABASE_URL` | yes | Your Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | Service-role key — server-side only, bypasses RLS |
-| `FORGE_API_KEY` | yes | Shared Bearer secret your MCP client must send |
+| `FORGE_API_KEY` | one of | Single Bearer secret. The caller writes as `claude-code` |
+| `FORGE_API_KEY_HERMES` | one of | Hermes's own secret. Same pattern for `_CLAUDE_CODE`, `_CODEX` |
+
+At least one key must be set. Set as many as you have agents; they combine.
 
 **`forge-ui/.env`**
 
@@ -190,10 +193,25 @@ To revoke, delete the row — it takes effect on their next request, no sign-out
 
 > **Upgrading an existing install?** If your database was created before the allowlist existed, its policies still grant every authenticated user full access. Run [`db/migrations/0001_restrict_access_to_allowlist.sql`](db/migrations/0001_restrict_access_to_allowlist.sql), and read the warning at the top first.
 
+### Agent identity comes from the API key
+
+The MCP layer has no user accounts — a request proves who it is by which key it presents. Give each agent its own variable:
+
+```bash
+FORGE_API_KEY_CLAUDE_CODE=...
+FORGE_API_KEY_HERMES=...
+```
+
+The resolved identity is what lands in `created_by` and `author`. Agents don't declare who they are, and the tools expose no field for it, so a client holding the Hermes key cannot write records attributed to Claude Code. It also makes revocation surgical: delete one variable and that agent is locked out while the others keep working.
+
+`FORGE_API_KEY` remains supported as a shorthand and authenticates as `claude-code`, so single-agent installs need no change. Two agents sharing one key are indistinguishable and both get logged as whatever that key resolves to — which is the situation per-agent keys exist to end. Pointing two variables at the same secret is a startup error rather than a silent guess.
+
+Keys are trimmed when read, so a newline picked up while pasting into a dashboard won't turn into an unexplained 401 later.
+
 Other things worth knowing:
 
 - **The service-role key bypasses RLS entirely.** It belongs only in the MCP server's environment — never in the UI, never in a `VITE_` variable, never committed.
-- **The MCP server has no user identity.** Anyone holding `FORGE_API_KEY` can do anything the tools allow. Generate it randomly (`openssl rand -hex 32`) and rotate it if it leaks.
+- **Keys are all-or-nothing.** They decide *who you are*, not *what you can reach* — any valid key can use every tool on every project. Generate them randomly (`openssl rand -hex 32`) and rotate any that leaks.
 - **Ticket markdown is not rendered as raw HTML** — `react-markdown` runs without `rehype-raw`, so HTML in ticket bodies is inert by design. Don't add `rehype-raw` without thinking it through.
 
 ---

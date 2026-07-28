@@ -1,64 +1,62 @@
-import type { Request, Response } from 'express';
-import { describe, it, expect, vi } from 'vitest';
-import { createAuthMiddleware } from '../src/auth.js';
+import type { AgentIdentity } from '@forge/shared';
+import { describe, it, expect } from 'vitest';
+import { createAgentResolver } from '../src/auth.js';
 
-const API_KEY = 'super-secret-key';
+// Fixture values, never real credentials. The trailing pragma stops gitleaks'
+// generic-api-key rule from flagging them on entropy alone.
+const CLAUDE_KEY = 'claude-key-0123456789abcdef'; // gitleaks:allow
+const HERMES_KEY = 'hermes-key-fedcba9876543210'; // gitleaks:allow
 
-function mockReq(authorization?: string): Request {
-  return {
-    header: (name: string): string | undefined =>
-      name.toLowerCase() === 'authorization' ? authorization : undefined,
-  } as unknown as Request;
-}
+const agentKeys = new Map<string, AgentIdentity>([
+  [CLAUDE_KEY, 'claude-code'],
+  [HERMES_KEY, 'hermes'],
+]);
 
-function mockRes(): Response & { statusCode: number; body: unknown } {
-  const res = {
-    statusCode: 0,
-    body: undefined as unknown,
-    status(code: number) {
-      this.statusCode = code;
-      return this;
-    },
-    json(payload: unknown) {
-      this.body = payload;
-      return this;
-    },
-  };
-  return res as unknown as Response & { statusCode: number; body: unknown };
-}
+describe('createAgentResolver', () => {
+  const resolve = createAgentResolver(agentKeys);
 
-describe('createAuthMiddleware', () => {
-  const middleware = createAuthMiddleware(API_KEY);
-
-  it('should call next() for a valid Bearer token', () => {
-    const res = mockRes();
-    const next = vi.fn();
-    middleware(mockReq(`Bearer ${API_KEY}`), res, next);
-    expect(next).toHaveBeenCalledOnce();
-    expect(res.statusCode).toBe(0);
+  it('should resolve each key to its own identity', () => {
+    expect(resolve(`Bearer ${CLAUDE_KEY}`)).toBe('claude-code');
+    expect(resolve(`Bearer ${HERMES_KEY}`)).toBe('hermes');
   });
 
-  it('should reject a missing Authorization header with 401', () => {
-    const res = mockRes();
-    const next = vi.fn();
-    middleware(mockReq(undefined), res, next);
-    expect(next).not.toHaveBeenCalled();
-    expect(res.statusCode).toBe(401);
+  it('should accept the Bearer scheme case-insensitively', () => {
+    expect(resolve(`bearer ${HERMES_KEY}`)).toBe('hermes');
   });
 
-  it('should reject a wrong token with 401', () => {
-    const res = mockRes();
-    const next = vi.fn();
-    middleware(mockReq('Bearer wrong-key'), res, next);
-    expect(next).not.toHaveBeenCalled();
-    expect(res.statusCode).toBe(401);
+  it('should reject an unknown key', () => {
+    expect(resolve('Bearer not-a-configured-key')).toBeNull();
   });
 
-  it('should reject a non-Bearer scheme with 401', () => {
-    const res = mockRes();
-    const next = vi.fn();
-    middleware(mockReq(`Basic ${API_KEY}`), res, next);
-    expect(next).not.toHaveBeenCalled();
-    expect(res.statusCode).toBe(401);
+  it('should reject a missing Authorization header', () => {
+    expect(resolve(undefined)).toBeNull();
+  });
+
+  it('should reject a non-Bearer scheme', () => {
+    expect(resolve(`Basic ${CLAUDE_KEY}`)).toBeNull();
+  });
+
+  it('should reject a key carrying trailing whitespace', () => {
+    // The capture group is greedy, so a stray newline copied along with the
+    // key changes its length and must not authenticate.
+    expect(resolve(`Bearer ${CLAUDE_KEY}\n`)).toBeNull();
+    expect(resolve(`Bearer ${CLAUDE_KEY} `)).toBeNull();
+  });
+
+  it('should reject a key that merely extends a valid one', () => {
+    expect(resolve(`Bearer ${CLAUDE_KEY}extra`)).toBeNull();
+  });
+
+  it('should leave other agents working when one key is revoked', () => {
+    const withoutHermes = new Map<string, AgentIdentity>([[CLAUDE_KEY, 'claude-code']]);
+    const afterRevocation = createAgentResolver(withoutHermes);
+
+    expect(afterRevocation(`Bearer ${HERMES_KEY}`)).toBeNull();
+    expect(afterRevocation(`Bearer ${CLAUDE_KEY}`)).toBe('claude-code');
+  });
+
+  it('should reject everything when no keys are configured', () => {
+    const noKeys = createAgentResolver(new Map<string, AgentIdentity>());
+    expect(noKeys(`Bearer ${CLAUDE_KEY}`)).toBeNull();
   });
 });

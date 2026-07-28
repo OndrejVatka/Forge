@@ -1,8 +1,9 @@
 import 'dotenv/config';
+import type { AgentIdentity } from '@forge/shared';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import cors from 'cors';
 import express from 'express';
-import { createAuthMiddleware } from './auth.js';
+import { createAgentResolver } from './auth.js';
 import { createSupabaseRepository } from './db/repository.js';
 import { loadEnv } from './env.js';
 import { buildMcpServer } from './server.js';
@@ -10,6 +11,7 @@ import { createSupabaseClient } from './supabase.js';
 
 const env = loadEnv();
 const repository = createSupabaseRepository(createSupabaseClient(env));
+const resolveAgent = createAgentResolver(env.agentKeys);
 
 const app = express();
 app.use(cors());
@@ -22,9 +24,14 @@ app.get('/health', (_req, res) => {
 
 // MCP endpoint (stateless Streamable HTTP). A fresh server + transport is
 // created per request; `enableJsonResponse` returns plain JSON rather than SSE,
-// which suits a request/response tool server.
-async function handleMcpRequest(req: express.Request, res: express.Response): Promise<void> {
-  const server = buildMcpServer(repository);
+// which suits a request/response tool server. Building per request is also what
+// lets the authenticated identity be baked into the tools.
+async function handleMcpRequest(
+  req: express.Request,
+  res: express.Response,
+  agent: AgentIdentity,
+): Promise<void> {
+  const server = buildMcpServer(repository, agent);
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
@@ -39,8 +46,14 @@ async function handleMcpRequest(req: express.Request, res: express.Response): Pr
   await transport.handleRequest(req, res, req.body);
 }
 
-app.post('/mcp', createAuthMiddleware(env.FORGE_API_KEY), (req, res) => {
-  void handleMcpRequest(req, res).catch((error: unknown) => {
+app.post('/mcp', (req, res) => {
+  const agent = resolveAgent(req.header('authorization'));
+  if (!agent) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  void handleMcpRequest(req, res, agent).catch((error: unknown) => {
     console.error('[forge-mcp] request handling failed:', error);
     if (!res.headersSent) {
       res.status(500).json({ error: 'Internal Server Error' });

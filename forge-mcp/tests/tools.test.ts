@@ -1,4 +1,4 @@
-import type { Comment, Project, TicketWithRelations } from '@forge/shared';
+import type { AgentIdentity, Comment, Project, TicketWithRelations } from '@forge/shared';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'node:crypto';
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -29,6 +29,9 @@ function payload<T>(result: CallToolResult): T {
   return JSON.parse(first.text) as T;
 }
 
+/** Identity the tools are built with, standing in for a resolved API key. */
+const AGENT: AgentIdentity = 'claude-code';
+
 let repo: FakeForgeRepository;
 beforeEach(() => {
   repo = new FakeForgeRepository();
@@ -46,10 +49,16 @@ describe('list_projects', () => {
 describe('create_ticket', () => {
   it('should assign sequential refs and default to the backlog', async () => {
     const first = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), { project_id: repo.seededProjectId, title: 'First' }),
+      await run(createTicketTool(repo, AGENT), {
+        project_id: repo.seededProjectId,
+        title: 'First',
+      }),
     );
     const second = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), { project_id: repo.seededProjectId, title: 'Second' }),
+      await run(createTicketTool(repo, AGENT), {
+        project_id: repo.seededProjectId,
+        title: 'Second',
+      }),
     );
 
     expect(first.ticket_ref).toBe('PI-1');
@@ -58,25 +67,35 @@ describe('create_ticket', () => {
     expect(first.created_by).toBe('claude-code');
   });
 
-  it('should log a system "created by" comment', async () => {
+  it('should log a system "created by" comment naming the authenticated agent', async () => {
     const ticket = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), {
+      await run(createTicketTool(repo, 'hermes'), {
         project_id: repo.seededProjectId,
         title: 'Logged',
-        created_by: 'human',
       }),
     );
     const log = payload<TicketWithRelations>(
       await run(getTicketTool(repo), { ticket_ref: ticket.ticket_ref }),
     );
     expect(
-      log.comments?.some((c) => c.author === 'system' && c.body === 'Ticket created by human'),
+      log.comments?.some((c) => c.author === 'system' && c.body === 'Ticket created by hermes'),
     ).toBe(true);
+  });
+
+  it('should attribute the ticket to the authenticated agent, ignoring caller-supplied input', async () => {
+    const ticket = payload<TicketWithRelations>(
+      await run(createTicketTool(repo, 'hermes'), {
+        project_id: repo.seededProjectId,
+        title: 'Impersonation attempt',
+        created_by: 'claude-code',
+      }),
+    );
+    expect(ticket.created_by).toBe('hermes');
   });
 
   it('should attach valid tags', async () => {
     const ticket = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), {
+      await run(createTicketTool(repo, AGENT), {
         project_id: repo.seededProjectId,
         title: 'Tagged',
         tags: ['feature', 'urgent'],
@@ -87,13 +106,13 @@ describe('create_ticket', () => {
 
   it('should reject an unknown project', async () => {
     await expect(
-      run(createTicketTool(repo), { project_id: randomUUID(), title: 'Nope' }),
+      run(createTicketTool(repo, AGENT), { project_id: randomUUID(), title: 'Nope' }),
     ).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it('should reject unknown tags and not consume a ticket number', async () => {
     await expect(
-      run(createTicketTool(repo), {
+      run(createTicketTool(repo, AGENT), {
         project_id: repo.seededProjectId,
         title: 'Bad tag',
         tags: ['nonexistent'],
@@ -102,7 +121,7 @@ describe('create_ticket', () => {
 
     // Next successful create should still be PI-1 (no number burned).
     const ok = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), { project_id: repo.seededProjectId, title: 'OK' }),
+      await run(createTicketTool(repo, AGENT), { project_id: repo.seededProjectId, title: 'OK' }),
     );
     expect(ok.ticket_ref).toBe('PI-1');
   });
@@ -119,7 +138,7 @@ describe('get_ticket', () => {
 describe('update_ticket', () => {
   it('should change priority and log a descriptive system comment', async () => {
     const created = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), {
+      await run(createTicketTool(repo, AGENT), {
         project_id: repo.seededProjectId,
         title: 'Reprioritise',
       }),
@@ -138,7 +157,7 @@ describe('update_ticket', () => {
 
   it('should replace tags entirely', async () => {
     const created = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), {
+      await run(createTicketTool(repo, AGENT), {
         project_id: repo.seededProjectId,
         title: 'Retag',
         tags: ['bug'],
@@ -154,10 +173,13 @@ describe('update_ticket', () => {
 describe('update_ticket_status', () => {
   it('should move the ticket and log the change plus an optional comment', async () => {
     const created = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), { project_id: repo.seededProjectId, title: 'Move me' }),
+      await run(createTicketTool(repo, AGENT), {
+        project_id: repo.seededProjectId,
+        title: 'Move me',
+      }),
     );
     const moved = payload<TicketWithRelations>(
-      await run(updateTicketStatusTool(repo), {
+      await run(updateTicketStatusTool(repo, AGENT), {
         ticket_ref: created.ticket_ref,
         status: 'in_dev',
         comment: 'starting work',
@@ -172,24 +194,41 @@ describe('update_ticket_status', () => {
     ).toBe(true);
     expect(moved.comments?.some((c) => c.body === 'starting work')).toBe(true);
   });
+
+  it('should attribute the optional comment to the authenticated agent', async () => {
+    const created = payload<TicketWithRelations>(
+      await run(createTicketTool(repo, AGENT), { project_id: repo.seededProjectId, title: 'Move' }),
+    );
+    const moved = payload<TicketWithRelations>(
+      await run(updateTicketStatusTool(repo, 'hermes'), {
+        ticket_ref: created.ticket_ref,
+        status: 'review',
+        comment: 'moving to review',
+      }),
+    );
+    expect(moved.comments?.find((c) => c.body === 'moving to review')?.author).toBe('hermes');
+  });
 });
 
 describe('list_tickets', () => {
   beforeEach(async () => {
-    await run(createTicketTool(repo), {
+    await run(createTicketTool(repo, AGENT), {
       project_id: repo.seededProjectId,
       title: 'Bug ticket',
       tags: ['bug'],
       priority: 'high',
     });
     const feature = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), {
+      await run(createTicketTool(repo, AGENT), {
         project_id: repo.seededProjectId,
         title: 'Feature ticket',
         tags: ['feature'],
       }),
     );
-    await run(updateTicketStatusTool(repo), { ticket_ref: feature.ticket_ref, status: 'in_dev' });
+    await run(updateTicketStatusTool(repo, AGENT), {
+      ticket_ref: feature.ticket_ref,
+      status: 'in_dev',
+    });
   });
 
   it('should filter by status', async () => {
@@ -217,18 +256,38 @@ describe('list_tickets', () => {
 describe('add_comment', () => {
   it('should append a comment to an existing ticket', async () => {
     const created = payload<TicketWithRelations>(
-      await run(createTicketTool(repo), { project_id: repo.seededProjectId, title: 'Discuss' }),
+      await run(createTicketTool(repo, AGENT), {
+        project_id: repo.seededProjectId,
+        title: 'Discuss',
+      }),
     );
     const comment = payload<Comment>(
-      await run(addCommentTool(repo), { ticket_ref: created.ticket_ref, body: 'a note' }),
+      await run(addCommentTool(repo, AGENT), { ticket_ref: created.ticket_ref, body: 'a note' }),
     );
     expect(comment.body).toBe('a note');
     expect(comment.author).toBe('claude-code');
   });
 
+  it('should attribute the comment to the authenticated agent, ignoring caller-supplied input', async () => {
+    const created = payload<TicketWithRelations>(
+      await run(createTicketTool(repo, AGENT), {
+        project_id: repo.seededProjectId,
+        title: 'Whose',
+      }),
+    );
+    const comment = payload<Comment>(
+      await run(addCommentTool(repo, 'hermes'), {
+        ticket_ref: created.ticket_ref,
+        body: 'written by hermes',
+        author: 'claude-code',
+      }),
+    );
+    expect(comment.author).toBe('hermes');
+  });
+
   it('should reject an unknown ref', async () => {
     await expect(
-      run(addCommentTool(repo), { ticket_ref: 'PI-404', body: 'ghost' }),
+      run(addCommentTool(repo, AGENT), { ticket_ref: 'PI-404', body: 'ghost' }),
     ).rejects.toBeInstanceOf(NotFoundError);
   });
 });
