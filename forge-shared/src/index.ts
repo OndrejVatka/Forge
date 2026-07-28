@@ -30,6 +30,16 @@ export const COMMENT_AUTHORS = ['human', 'claude-code', 'codex', 'hermes', 'syst
 export const commentAuthorSchema = z.enum(COMMENT_AUTHORS);
 export type CommentAuthor = z.infer<typeof commentAuthorSchema>;
 
+/**
+ * Identities an MCP client can authenticate as, each backed by its own API key.
+ * A subset of the ticket creators: `human` writes arrive through the web UI and
+ * `system` comments are written by a database trigger, so neither is reachable
+ * over MCP.
+ */
+export const AGENT_IDENTITIES = ['claude-code', 'codex', 'hermes'] as const;
+export const agentIdentitySchema = z.enum(AGENT_IDENTITIES);
+export type AgentIdentity = z.infer<typeof agentIdentitySchema>;
+
 // --- Entities (mirror the `db/schema.sql` tables) -------------------------
 
 export interface Project {

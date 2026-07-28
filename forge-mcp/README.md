@@ -23,7 +23,7 @@ npm run dev              # tsx watch, from repo root or this package
 
 Server endpoints:
 - `GET /health` — unauthenticated health check (used by Railway)
-- `POST /mcp` — MCP endpoint; requires `Authorization: Bearer <FORGE_API_KEY>`
+- `POST /mcp` — MCP endpoint; requires `Authorization: Bearer <api key>`. Every rejection is an identical generic 401, so the response can't be used to probe for a valid key.
 
 ### Quick manual check
 
@@ -52,7 +52,10 @@ claude mcp add --transport http forge https://<your-railway-url>/mcp \
 | `PORT` | Listen port (default 3000) |
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service-role key (server-side only; bypasses RLS) |
-| `FORGE_API_KEY` | Shared Bearer secret clients must send |
+| `FORGE_API_KEY` | Single Bearer secret; the caller writes as `claude-code` |
+| `FORGE_API_KEY_<AGENT>` | One secret per agent: `_CLAUDE_CODE`, `_CODEX`, `_HERMES` |
+
+At least one key must be set. The key a request presents resolves to an agent identity (`claude-code`, `codex`, `hermes`), and that identity — not any caller-supplied field — is written to `created_by` and `author`.
 
 ## Build & deploy (Railway)
 

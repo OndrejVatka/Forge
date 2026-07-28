@@ -1,3 +1,4 @@
+import type { AgentIdentity } from '@forge/shared';
 import { McpServer, type ToolCallback } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import type { z, ZodObject, ZodRawShape } from 'zod';
@@ -18,18 +19,19 @@ export const SERVER_VERSION = '0.1.0';
 /**
  * Build a fully-configured MCP server with all Forge tools registered and
  * wired to the given repository. A fresh instance is created per request in
- * the stateless HTTP transport.
+ * the stateless HTTP transport, so `agent` is the identity resolved from that
+ * request's API key — the tools that record authorship close over it.
  */
-export function buildMcpServer(repo: ForgeRepository): McpServer {
+export function buildMcpServer(repo: ForgeRepository, agent: AgentIdentity): McpServer {
   const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION });
 
   registerTool(server, listProjectsTool(repo));
-  registerTool(server, createTicketTool(repo));
+  registerTool(server, createTicketTool(repo, agent));
   registerTool(server, listTicketsTool(repo));
   registerTool(server, getTicketTool(repo));
   registerTool(server, updateTicketTool(repo));
-  registerTool(server, updateTicketStatusTool(repo));
-  registerTool(server, addCommentTool(repo));
+  registerTool(server, updateTicketStatusTool(repo, agent));
+  registerTool(server, addCommentTool(repo, agent));
 
   return server;
 }

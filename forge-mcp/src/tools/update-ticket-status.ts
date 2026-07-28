@@ -1,3 +1,4 @@
+import type { AgentIdentity } from '@forge/shared';
 import type { ForgeRepository } from '../db/repository.js';
 import { NotFoundError } from '../errors.js';
 import { jsonResult } from './result.js';
@@ -6,6 +7,7 @@ import type { ForgeTool } from './types.js';
 
 export function updateTicketStatusTool(
   repo: ForgeRepository,
+  agent: AgentIdentity,
 ): ForgeTool<typeof updateTicketStatusSchema.shape> {
   return {
     name: 'update_ticket_status',
@@ -23,7 +25,7 @@ export function updateTicketStatusTool(
       // here. We only persist the optional caller-supplied comment.
       await repo.updateTicketStatus(existing.id, input.status);
       if (input.comment) {
-        await repo.addComment(existing.id, input.comment, 'claude-code');
+        await repo.addComment(existing.id, input.comment, agent);
       }
 
       const updated = await repo.getTicketWithRelations(input.ticket_ref);

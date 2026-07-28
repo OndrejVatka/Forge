@@ -1,9 +1,4 @@
-import {
-  commentAuthorSchema,
-  prioritySchema,
-  ticketCreatorSchema,
-  ticketStatusSchema,
-} from '@forge/shared';
+import { prioritySchema, ticketStatusSchema } from '@forge/shared';
 import { z } from 'zod';
 
 export const listProjectsSchema = z.object({});
@@ -15,7 +10,6 @@ export const createTicketSchema = z.object({
   acceptance_criteria: z.string().optional(),
   priority: prioritySchema.default('medium'),
   tags: z.array(z.string()).optional(),
-  created_by: ticketCreatorSchema.default('claude-code'),
 });
 
 export const listTicketsSchema = z.object({
@@ -49,5 +43,4 @@ export const updateTicketStatusSchema = z.object({
 export const addCommentSchema = z.object({
   ticket_ref: z.string().min(1),
   body: z.string().min(1),
-  author: commentAuthorSchema.default('claude-code'),
 });

@@ -1,3 +1,4 @@
+import type { AgentIdentity } from '@forge/shared';
 import type { ForgeRepository } from '../db/repository.js';
 import { NotFoundError, ValidationError } from '../errors.js';
 import { jsonResult } from './result.js';
@@ -6,6 +7,7 @@ import type { ForgeTool } from './types.js';
 
 export function createTicketTool(
   repo: ForgeRepository,
+  agent: AgentIdentity,
 ): ForgeTool<typeof createTicketSchema.shape> {
   return {
     name: 'create_ticket',
@@ -42,13 +44,13 @@ export function createTicketTool(
         description: input.description ?? null,
         acceptance_criteria: input.acceptance_criteria ?? null,
         priority: input.priority,
-        created_by: input.created_by,
+        created_by: agent,
       });
 
       if (tagIds.length > 0) {
         await repo.setTicketTags(ticket.id, tagIds);
       }
-      await repo.addComment(ticket.id, `Ticket created by ${input.created_by}`, 'system');
+      await repo.addComment(ticket.id, `Ticket created by ${agent}`, 'system');
 
       const tags = await repo.getTicketTags(ticket.id);
       return jsonResult({ ...ticket, tags });
