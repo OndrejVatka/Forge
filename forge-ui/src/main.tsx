@@ -14,7 +14,9 @@ if (!rootElement) throw new Error('Root element #root not found');
 createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      {/* The v7_startTransition and v7_relativeSplatPath opt-ins are gone: both
+          are the default behaviour in React Router 7, and the prop no longer exists. */}
+      <BrowserRouter>
         <ThemeProvider>
           <AuthProvider>
             <App />
