@@ -27,6 +27,9 @@
     "typescript-eslint": "^8.18.1",
     "vitest": "^4.1.8"
   },
+  "overrides": {
+    "brace-expansion": "^5.0.8"
+  },
   "engines": {
     "node": ">=20"
   }

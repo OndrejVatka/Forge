@@ -10,9 +10,11 @@ export function TicketCard({ ticket }: { ticket: TicketWithRelations }): ReactEl
   const navigate = useNavigate();
   const isAiCreated = (AI_CREATORS as readonly string[]).includes(ticket.created_by);
 
+  // `navigate` returns a promise in React Router 7; nothing awaits a click
+  // handler, so the result is explicitly discarded at the call site below.
   return (
     <div
-      onClick={() => navigate(`/ticket/${ticket.ticket_ref}`)}
+      onClick={() => void navigate(`/ticket/${ticket.ticket_ref}`)}
       className="ticket-card relative cursor-pointer rounded-lg border border-border bg-surface p-3 transition-colors hover:border-primary/50"
     >
       {isAiCreated && (
