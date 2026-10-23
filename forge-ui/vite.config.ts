@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { SUPABASE_REST_CACHE } from './src/lib/offline-cache.js';
 
 export default defineConfig({
   plugins: [
@@ -39,9 +40,11 @@ export default defineConfig({
               url.hostname.endsWith('.supabase.co') && url.pathname.startsWith('/rest/'),
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'forge-supabase-rest',
+              cacheName: SUPABASE_REST_CACHE,
               expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
-              cacheableResponse: { statuses: [0, 200] },
+              // 200 only: these are CORS fetches, so an opaque (status 0)
+              // response would be an error or redirect cached as real data.
+              cacheableResponse: { statuses: [200] },
             },
           },
           {
