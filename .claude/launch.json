@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--workspace", "@forge/ui"],
       "port": 5173
+    },
+    {
+      "name": "forge-ui-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "preview", "--workspace", "@forge/ui"],
+      "port": 4173
     }
   ]
 }

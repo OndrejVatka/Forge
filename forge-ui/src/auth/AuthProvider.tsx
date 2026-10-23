@@ -1,6 +1,8 @@
 import type { Session } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactElement, ReactNode } from 'react';
+import { clearOfflineBoardCache } from '../lib/offline-cache.js';
 import { supabase } from '../lib/supabase.js';
 
 interface AuthResult {
@@ -26,6 +28,7 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }): ReactElement {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     let active = true;
@@ -59,10 +62,17 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
         return { error: null, needsConfirmation: data.session === null };
       },
       signOut: async () => {
-        await supabase.auth.signOut();
+        // Purge cached board data even if the sign-out request fails: the local
+        // session is dropped either way, so the data must not outlive it.
+        try {
+          await supabase.auth.signOut();
+        } finally {
+          queryClient.clear();
+          await clearOfflineBoardCache();
+        }
       },
     }),
-    [session, loading],
+    [session, loading, queryClient],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
