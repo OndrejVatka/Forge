@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import type { AgentIdentity } from '@forge/shared';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import cors from 'cors';
 import express from 'express';
 import { createAgentResolver } from './auth.js';
 import { createSupabaseRepository } from './db/repository.js';
@@ -14,7 +13,6 @@ const repository = createSupabaseRepository(createSupabaseClient(env));
 const resolveAgent = createAgentResolver(env.agentKeys);
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
 // Unauthenticated health check for Railway.
