@@ -52,7 +52,7 @@ Two project-specific things worth knowing before you change them:
 The RLS policies are the only thing protecting a user's data, so schema changes get extra scrutiny. If you touch them:
 
 - Explain the access-control impact in your PR description
-- Add a migration under `db/migrations/` for existing installs — editing `schema.sql` alone only helps fresh ones
+- Add a migration under `db/migrations/` for existing installs — editing `schema.sql` alone only helps fresh ones. Follow the rules in [docs/operations.md](docs/operations.md#migrations): no `BEGIN`/`COMMIT`, and keep the deployed code working
 - Say whether you actually ran it against a real Supabase project
 
 ## Security issues

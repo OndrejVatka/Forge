@@ -150,6 +150,10 @@ claude mcp add --transport http forge https://<your-app>.up.railway.app/mcp \
 
 > `VITE_*` variables are inlined into the JavaScript bundle at build time. That's expected — the anon key is designed to be public, and RLS is what actually protects your data. Never put the service-role key in a `VITE_` variable.
 
+### Shipping changes after the first deploy
+
+Both hosts deploy on every merge to `main`, so once you're live, ship with `make deploy PR=<n>` rather than the merge button. It backs up the database, applies pending migrations, merges, waits for both hosts, then runs a health check and an authenticated MCP smoke test. Setup, backups and their retention, restore testing, and the migration rules are all in [docs/operations.md](docs/operations.md).
+
 ---
 
 ## Environment variables
@@ -225,7 +229,8 @@ Other things worth knowing:
 | [`forge-shared`](forge-shared) | Shared TypeScript domain types + Zod schemas | — (workspace lib) |
 | [`forge-mcp`](forge-mcp) | Streamable HTTP MCP server (Node + Express) — [details](forge-mcp/README.md) | Railway |
 | [`forge-ui`](forge-ui) | React + Vite PWA | Vercel |
-| [`db`](db) | `schema.sql` — run in the Supabase SQL Editor | Supabase |
+| [`forge-ops`](forge-ops) | Backup, restore-test, migration and deploy tooling — [docs](docs/operations.md) | — (runs locally) |
+| [`db`](db) | `schema.sql` for fresh installs, `migrations/` for existing ones | Supabase |
 | [`design-system`](design-system) | Static HTML snapshot of the UI's visual language | — |
 
 ### Scripts
@@ -236,6 +241,7 @@ npm run typecheck                  # tsc --noEmit across workspaces
 npm run lint                       # eslint
 npm run format                     # prettier --write
 npm test                           # vitest run
+make verify                        # all of the above (format check) + build
 
 npm run dev --workspace @forge/ui  # UI on :5173
 npm run dev --workspace @forge/mcp # MCP server on :3000
