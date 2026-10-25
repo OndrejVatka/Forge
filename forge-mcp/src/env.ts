@@ -10,7 +10,7 @@ import { z } from 'zod';
  */
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
-  SUPABASE_URL: z.string().url(),
+  SUPABASE_URL: z.url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   /** Single-key config. The caller presenting it writes as `claude-code`. */
   FORGE_API_KEY: z.string().min(1).optional(),
@@ -45,7 +45,7 @@ export function loadEnv(): Env {
   if (!parsed.success) {
     console.error(
       '[forge-mcp] Invalid environment configuration:',
-      parsed.error.flatten().fieldErrors,
+      z.flattenError(parsed.error).fieldErrors,
     );
     process.exit(1);
   }

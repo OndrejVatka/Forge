@@ -3,11 +3,11 @@ import { join } from 'node:path';
 import { z } from 'zod';
 import { OpsError } from './errors.js';
 
+// Trim before the URL check: values pasted into .env often carry a stray space.
 const postgresUrl = z
   .string()
   .trim()
-  .url()
-  .refine((value) => /^postgres(ql)?:\/\//.test(value), 'must be a postgres:// connection string');
+  .pipe(z.url({ protocol: /^postgres(ql)?$/, error: 'must be a postgres:// connection string' }));
 
 /**
  * Ops environment, read from `forge-ops/.env` (see `.env.example`). Every
@@ -17,7 +17,7 @@ const postgresUrl = z
 const configSchema = z.object({
   FORGE_DB_URL: postgresUrl.optional(),
   FORGE_RESTORE_DB_URL: postgresUrl.optional(),
-  FORGE_MCP_URL: z.string().trim().url().optional(),
+  FORGE_MCP_URL: z.string().trim().pipe(z.url()).optional(),
   FORGE_SMOKE_API_KEY: z.string().trim().min(1).optional(),
   FORGE_BACKUP_DIR: z
     .string()
@@ -51,7 +51,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): OpsConfig {
   const parsed = configSchema.safeParse(env);
   if (!parsed.success) {
     // Name the variables only: the values may be credentials.
-    const fields = Object.keys(parsed.error.flatten().fieldErrors).join(', ');
+    const fields = Object.keys(z.flattenError(parsed.error).fieldErrors).join(', ');
     throw new OpsError(`Invalid ops configuration in: ${fields}`);
   }
   const c = parsed.data;

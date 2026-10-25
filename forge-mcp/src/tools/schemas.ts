@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const listProjectsSchema = z.object({});
 
 export const createTicketSchema = z.object({
-  project_id: z.string().uuid(),
+  project_id: z.uuid(),
   title: z.string().min(1),
   description: z.string().optional(),
   acceptance_criteria: z.string().optional(),
@@ -13,7 +13,7 @@ export const createTicketSchema = z.object({
 });
 
 export const listTicketsSchema = z.object({
-  project_id: z.string().uuid().optional(),
+  project_id: z.uuid().optional(),
   status: ticketStatusSchema.optional(),
   priority: prioritySchema.optional(),
   tags: z.array(z.string()).optional(),
