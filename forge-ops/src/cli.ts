@@ -3,7 +3,7 @@ import { config as loadDotenv } from 'dotenv';
 import { runBackup } from './commands/backup.js';
 import { runDeploy } from './commands/deploy.js';
 import { runMigrateApply, runMigrateBaseline, runMigrateStatus } from './commands/migrate.js';
-import { runRestoreTest } from './commands/restore-test.js';
+import { runRestoreProduction, runRestoreTest } from './commands/restore.js';
 import { runSmoke, waitForHealth } from './commands/smoke.js';
 import { loadConfig } from './config.js';
 import { OpsError } from './errors.js';
@@ -12,6 +12,7 @@ const USAGE = `Usage: npm run ops -- <command>
 
   backup                     Back up production now (manual label)
   restore-test [file]        Restore a backup (default: newest) into FORGE_RESTORE_DB_URL and verify it
+  restore-production <file>  Restore a backup over PRODUCTION (backs up first, asks to confirm)
   migrate status             List pending migrations
   migrate apply              Back up, then apply pending migrations
   migrate baseline <NNNN>    Record migrations up to NNNN as already applied (one-off)
@@ -31,6 +32,10 @@ async function main(args: string[]): Promise<void> {
       return;
     case 'restore-test':
       await runRestoreTest(config, sub);
+      return;
+    case 'restore-production':
+      if (!sub) throw new OpsError(USAGE);
+      await runRestoreProduction(config, sub);
       return;
     case 'migrate':
       if (sub === 'status') {

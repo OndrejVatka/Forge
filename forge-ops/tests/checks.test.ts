@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { assertNotProduction } from '../src/commands/restore-test.js';
+import { assertNotProduction } from '../src/commands/restore.js';
 import { loadConfig } from '../src/config.js';
 import { evaluateDeployStatuses } from '../src/deploy-status.js';
 import { OpsError } from '../src/errors.js';
 import { parseConnection } from '../src/pg.js';
+import { filterRestoreList } from '../src/restore-list.js';
 import { diffRowCounts, parseRowCounts } from '../src/row-counts.js';
 
 // Fixture values, never real credentials. The trailing pragma stops gitleaks'
@@ -90,5 +91,31 @@ describe('loadConfig', () => {
     expect(attempt).toThrow(OpsError);
     expect(attempt).toThrow(/FORGE_DB_URL/);
     expect(attempt).not.toThrow(/hunter2/);
+  });
+});
+
+describe('filterRestoreList', () => {
+  it('should drop Supabase platform entries and keep Forge objects', () => {
+    const list = [
+      ';',
+      '; Archive created at 2026-10-25 10:51:14 UTC',
+      '5; 2615 2200 SCHEMA - public pg_database_owner',
+      '4012; 0 0 COMMENT - SCHEMA public pg_database_owner',
+      '4013; 0 0 ACL - SCHEMA public pg_database_owner',
+      '230; 1255 17001 FUNCTION public is_allowed_user() postgres',
+      '3990; 0 17020 TABLE DATA public tickets postgres',
+      '3801; 3256 17100 POLICY public tickets allowlisted_full_access postgres',
+      '3802; 0 0 ACL public FUNCTION is_allowed_user() postgres',
+      '2290; 826 2200 DEFAULT ACL public DEFAULT PRIVILEGES FOR FUNCTIONS supabase_admin',
+    ].join('\n');
+
+    expect(filterRestoreList(list).split('\n')).toEqual([
+      ';',
+      '; Archive created at 2026-10-25 10:51:14 UTC',
+      '230; 1255 17001 FUNCTION public is_allowed_user() postgres',
+      '3990; 0 17020 TABLE DATA public tickets postgres',
+      '3801; 3256 17100 POLICY public tickets allowlisted_full_access postgres',
+      '3802; 0 0 ACL public FUNCTION is_allowed_user() postgres',
+    ]);
   });
 });

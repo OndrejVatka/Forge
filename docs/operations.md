@@ -9,6 +9,7 @@ root on a maintainer's machine; the tooling lives in [`forge-ops/`](../forge-ops
 | `make deploy-dry-run PR=<n>` | Preflight and backup only; applies and merges nothing |
 | `make backup` | Back up production now |
 | `make restore-test [FILE=...]` | Restore a backup into the scratch DB and verify it |
+| `make restore-production FILE=...` | Restore a backup over production (backs up first, asks to confirm) |
 | `make migrate-status` | List pending migrations |
 | `make migrate` | Back up, then apply pending migrations outside a deploy |
 | `make smoke` | `/health` + authenticated MCP smoke test against production |
@@ -78,28 +79,36 @@ make restore-test            # newest backup
 make restore-test FILE=~/Backups/forge/forge-...dump
 ```
 
-The test restores into `FORGE_RESTORE_DB_URL` with `--clean --single-transaction`, then fails unless:
+A restore runs as **one transaction** against `FORGE_RESTORE_DB_URL`:
 
-- every table's row count matches the backup's manifest, and
-- every `public` table still has row-level security enabled.
+1. drop the Forge tables and functions (and `forge_meta`), leaving anything that belongs to an extension alone;
+2. load the backup, skipping entries for Supabase's own setup (the `public` schema itself and default privileges for `supabase_admin`), which every project already has and the `postgres` role can't recreate;
+3. put `tickets` and `comments` back in the `supabase_realtime` publication, because a schema-level dump doesn't carry publication membership (see FO-22).
 
-It refuses to run if the target is the production database. Run it after changing the backup tooling, after a schema change, and every month or so anyway: an untested backup is a hope, not a backup.
+If any statement fails, the target is left exactly as it was. The test then fails unless:
+
+- every table's row count matches the backup's manifest,
+- every `public` table still has row-level security enabled, and
+- `tickets` and `comments` are in the Realtime publication.
+
+It refuses to run if the target is the production database. Run it after changing the backup tooling, after a schema change, and every month or so anyway: an untested backup is a hope, not a backup. Between tests the scratch project can be paused; restore it in the Supabase dashboard first. After a test it holds a full copy of production data, so delete and recreate it if you'd rather not keep that copy around.
 
 ## Restoring production
 
-The tooling deliberately has no command that writes a backup into production. If you really need one (data loss or a bad migration), do it by hand, deliberately:
+For data loss or a bad migration:
 
-1. Take a fresh backup of the current state first (`make backup`), even if it's broken. It may hold writes made since the backup you're about to restore.
-2. Rehearse with `make restore-test FILE=<the backup>`.
-3. Then restore into production. `--clean` drops and recreates every object in the dump:
+1. Rehearse first: `make restore-test FILE=<the backup>`.
+2. Then:
 
    ```bash
-   PGPASSWORD='<prod password>' /opt/homebrew/opt/libpq/bin/pg_restore \
-     --dbname 'postgresql://postgres.<ref>@<pooler-host>:5432/postgres' \
-     --clean --if-exists --no-owner --single-transaction --exit-on-error <file>.dump
+   make restore-production FILE=<the backup>
    ```
 
-4. Run `make smoke` and check the board.
+   It runs the same code path the restore test just rehearsed. You'll be asked to type the production database user (`postgres.<project-ref>`) to confirm, and it refuses to run without a terminal. Before touching anything it takes a fresh backup labelled `pre-restore`, because the current state, broken or not, may hold writes newer than the backup you're restoring. The restore is one transaction: if it fails, production is unchanged.
+
+3. Run `make smoke` and check the board.
+
+Everyone's sessions survive (sign-in lives in Supabase Auth, which isn't touched), but anything written after the backup was taken is gone from the live tables. It's still in the `pre-restore` backup if you need to dig it out.
 
 ## Migrations
 

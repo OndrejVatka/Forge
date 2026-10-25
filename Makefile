@@ -1,7 +1,7 @@
 # Entry points for checking and shipping Forge. Operational commands are
 # documented in docs/operations.md; they read forge-ops/.env.
 
-.PHONY: verify backup restore-test migrate-status migrate migrate-baseline smoke deploy deploy-dry-run
+.PHONY: verify backup restore-test restore-production migrate-status migrate migrate-baseline smoke deploy deploy-dry-run
 
 ## Everything CI checks, plus the build. Must pass before a PR is deployed.
 verify:
@@ -18,6 +18,11 @@ backup:
 ## Restore a backup (FILE=..., default newest) into the scratch DB and verify it.
 restore-test:
 	npm run ops -- restore-test $(FILE)
+
+## Restore FILE=... over PRODUCTION. Backs up first and asks you to type the project ref.
+restore-production:
+	@test -n "$(FILE)" || (echo "Usage: make restore-production FILE=<backup.dump>" && exit 1)
+	npm run ops -- restore-production $(FILE)
 
 ## List pending migrations.
 migrate-status:
