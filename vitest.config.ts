@@ -5,11 +5,15 @@ export default defineConfig({
   test: {
     projects: [
       {
-        // Node-side packages: shared domain + MCP server.
+        // Node-side packages: shared domain, MCP server, ops tooling.
         test: {
           name: 'node',
           environment: 'node',
-          include: ['forge-shared/**/*.test.ts', 'forge-mcp/**/*.test.ts'],
+          include: [
+            'forge-shared/**/*.test.ts',
+            'forge-mcp/**/*.test.ts',
+            'forge-ops/**/*.test.ts',
+          ],
           exclude: ['**/node_modules/**', '**/dist/**'],
         },
       },

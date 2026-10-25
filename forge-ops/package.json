@@ -1,0 +1,20 @@
+{
+  "name": "@forge/ops",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Backup, restore, migration and deploy tooling for a Forge production install",
+  "scripts": {
+    "ops": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2"
+  }
+}
