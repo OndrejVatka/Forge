@@ -20,7 +20,7 @@ const PUBLICATION_SQL = fileURLToPath(
 const manifestSchema = z.object({
   createdAt: z.string(),
   source: z.string(),
-  rowCounts: z.record(z.number().int().nonnegative()),
+  rowCounts: z.record(z.string(), z.number().int().nonnegative()),
 });
 
 const PSQL_QUERY = ['--no-psqlrc', '--tuples-only', '--no-align', '-v', 'ON_ERROR_STOP=1'];

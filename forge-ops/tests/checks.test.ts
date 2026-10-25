@@ -86,6 +86,10 @@ describe('loadConfig', () => {
     expect(config.deployStatusContexts).toEqual(['Vercel', 'Forge - @forge/mcp']);
   });
 
+  it('should accept a postgres URL with surrounding whitespace, trimmed', () => {
+    expect(loadConfig({ FORGE_DB_URL: `  ${PROD_URL}\n` }).dbUrl).toBe(PROD_URL);
+  });
+
   it('should reject a non-postgres database URL without echoing its value', () => {
     const attempt = (): unknown => loadConfig({ FORGE_DB_URL: 'https://user:hunter2@example.com' });
     expect(attempt).toThrow(OpsError);
