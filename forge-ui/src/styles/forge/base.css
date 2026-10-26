@@ -1,0 +1,32 @@
+/* Minimal global base. Safe to drop into the app's index.css.
+   Forge change vs. the handoff: the 13px UI size is set on body, not html. On html it rescales
+   every rem (Tailwind's 4px spacing grid, the 2.75rem/44px coarse-pointer tap targets) to 81%. */
+html {
+  font-family: var(--font-sans);
+  line-height: var(--leading-normal);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'ss01', 'cv11';
+}
+body {
+  font-size: var(--text-sm);
+}
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+@keyframes forge-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0s !important;
+  }
+}

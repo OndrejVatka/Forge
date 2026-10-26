@@ -1,125 +1,64 @@
 @import 'tailwindcss';
+/* Forge v2 tokens, copied from the design handoff (FO-24). Fonts load from index.html. */
+@import './styles/forge/colors.css';
+@import './styles/forge/typography.css';
+@import './styles/forge/spacing.css';
+/* In the base layer so utilities (e.g. outline-hidden on fields) can override it. */
+@import './styles/forge/base.css' layer(base);
 
 /*
- * Forge design tokens (from the developer brief). Dark-mode first, minimal.
- * Tailwind v4 generates utilities from these (e.g. `bg-surface`, `text-muted`,
- * `border-border`, `font-mono`). Status/priority colours are applied inline
- * from data, so they live in src/lib/constants.ts rather than here.
+ * Semantic tokens → Tailwind utilities. `inline` makes utilities emit var(--x)
+ * directly, so they re-resolve when data-palette / data-mode change on <html>.
+ * Components use only these; never the palette knobs (--acc-*, --n-h, --n-c).
  */
-@theme {
-  --color-bg: #0f1117;
-  --color-surface: #1a1d27;
-  --color-surface-hover: #20242f;
-  --color-border: #2a2d3a;
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f52d6;
-  --color-text: #e2e8f0;
-  --color-muted: #64748b;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-inset: var(--surface-inset);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--text);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-tertiary: var(--text-tertiary);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-ai: var(--ai);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-status-backlog: var(--status-backlog);
+  --color-status-in-dev: var(--status-in-dev);
+  --color-status-review: var(--status-review);
+  --color-status-done: var(--status-done);
+  --color-priority-low: var(--priority-low);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-high: var(--priority-high);
+  --color-scrim: var(--scrim);
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-}
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 
-/*
- * Molten Forge — an alternate 8-bit skin, toggled from the app header via
- * `data-theme="molten"` on <html>. Tailwind v4 compiles its utilities down to
- * `var(--color-*)`, so overriding those custom properties re-skins the whole
- * app without touching markup. Only the things utilities cannot express
- * (radii, border weights, glows) need explicit rules below.
- *
- * Status/priority colours come from ticket data as inline styles, so those are
- * swapped in src/lib/constants.ts instead — CSS cannot reach them.
- */
-:root[data-theme='molten'] {
-  --color-bg: #0c0806;
-  --color-surface: #150b06;
-  --color-surface-hover: #2a1810;
-  --color-border: #4a3020;
-  --color-primary: #ff6d00;
-  --color-primary-hover: #ff9e40;
-  --color-text: #f5e6d3;
-  --color-muted: #bfa08a;
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
 
-  --font-sans: 'VT323', ui-monospace, monospace;
-  --font-mono: 'VT323', ui-monospace, monospace;
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
 
-  /* Not Tailwind tokens — consumed by the rules below. */
-  --molten-card: #1e120a;
-  --molten-hot: #ff6d00;
-  --molten-accent: #ff9e40;
-  --molten-display: 'Press Start 2P', monospace;
-}
-
-/*
- * VT323 renders roughly two sizes small at the same px value, so the base
- * ramp is scaled up to keep the same optical size as Inter.
- */
-:root[data-theme='molten'] body {
-  font-size: 1.2rem;
-  line-height: 1.35;
-}
-
-/* Hard rectangular panels — the theme drops the rounded-corner system. */
-:root[data-theme='molten'] [class*='rounded'] {
-  border-radius: 0;
-}
-
-/* Chunky borders are the primary retro signal, replacing 1px hairlines. */
-:root[data-theme='molten'] .border {
-  border-width: 2px;
-}
-
-/* Cards sit lighter than their column so they read as forged plates. */
-:root[data-theme='molten'] .bg-surface {
-  background-color: var(--molten-card);
-}
-
-/* Ticket refs and other mono runs pick up the ember accent. */
-:root[data-theme='molten'] .font-mono {
-  color: var(--molten-accent);
-}
-
-/* Wordmark only — Press Start 2P is a bitmap face, unreadable as body text. */
-:root[data-theme='molten'] .app-wordmark {
-  font-family: var(--molten-display);
-  font-size: 0.85rem;
-  color: var(--molten-accent);
-  text-shadow: 0 0 10px var(--molten-hot);
-}
-
-:root[data-theme='molten'] .app-header {
-  background: linear-gradient(180deg, #2a1508, #1a0d05);
-  border-bottom: 4px solid var(--molten-hot);
-}
-
-:root[data-theme='molten'] .board-bar {
-  border-bottom-width: 2px;
-}
-
-/* The in-progress column runs hot; its cards glow. */
-:root[data-theme='molten'] .board-column {
-  border-width: 3px;
-}
-
-:root[data-theme='molten'] .board-column[data-status='in_dev'] {
-  border-color: var(--molten-hot);
-}
-
-:root[data-theme='molten'] .board-column[data-status='in_dev'] .ticket-card {
-  border-color: var(--molten-hot);
-  box-shadow: 0 0 14px #ff6d0055;
-}
-
-/* Shipped work has cooled down. */
-:root[data-theme='molten'] .board-column[data-status='done'] .ticket-card {
-  opacity: 0.65;
-}
-
-/* Square status markers — blocky, not rounded. */
-:root[data-theme='molten'] .status-dot {
-  border-radius: 0;
-  height: 12px;
-  width: 12px;
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
 }
 
 html,
@@ -130,10 +69,6 @@ body,
 
 body {
   margin: 0;
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
 }
 
 /*
@@ -143,16 +78,19 @@ body {
  * it. On non-notch devices env(safe-area-inset-*) resolves to 0 (no change).
  */
 .app-header {
-  padding-top: calc(0.75rem + env(safe-area-inset-top));
-  padding-bottom: 0.75rem;
-  padding-left: calc(1rem + env(safe-area-inset-left));
-  padding-right: calc(1rem + env(safe-area-inset-right));
+  min-height: calc(var(--header-h) + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  padding-left: calc(var(--space-3) + env(safe-area-inset-left));
+  padding-right: calc(var(--space-3) + env(safe-area-inset-right));
 }
 
-/* Board filter bar: clear the landscape notch on the sides. */
-.board-bar {
-  padding-left: calc(1rem + env(safe-area-inset-left));
-  padding-right: calc(1rem + env(safe-area-inset-right));
+/* 40px page toolbar (board filters, ticket breadcrumb); wraps taller on narrow screens and clears the landscape notch. */
+.app-toolbar {
+  min-height: var(--toolbar-h);
+  padding-top: var(--space-1-5);
+  padding-bottom: var(--space-1-5);
+  padding-left: calc(var(--space-3) + env(safe-area-inset-left));
+  padding-right: calc(var(--space-3) + env(safe-area-inset-right));
 }
 
 /*
@@ -161,10 +99,10 @@ body {
  * width (no overflow), so scroll-snap is inert there.
  */
 .board-scroll {
-  padding-top: 1rem;
-  padding-left: calc(1rem + env(safe-area-inset-left));
-  padding-right: calc(1rem + env(safe-area-inset-right));
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  padding-top: var(--space-3);
+  padding-left: calc(var(--space-3) + env(safe-area-inset-left));
+  padding-right: calc(var(--space-3) + env(safe-area-inset-right));
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
   scroll-snap-type: x proximity;
 }
 .board-column {
@@ -175,6 +113,7 @@ body {
  * Comfortable touch targets on coarse pointers (touch) without inflating the
  * dense desktop layout — fine-pointer (mouse) devices keep the compact sizing.
  * 2.75rem ≈ the 44px iOS minimum; the -sm variant suits grouped chip filters.
+ * -square keeps icon-only buttons square as they grow.
  */
 @media (pointer: coarse) {
   .tap-target {
@@ -183,17 +122,26 @@ body {
   .tap-target-sm {
     min-height: 2.25rem;
   }
+  .tap-target-square {
+    min-width: 2.75rem;
+  }
 }
 
 /* Subtle scrollbars that fit the dark surface. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
-/* Minimal markdown styling (Tailwind preflight strips defaults). */
+/*
+ * Markdown (descriptions, criteria, comments): 13px / 1.6 on --text. Tailwind
+ * preflight strips element defaults, so the prose styles are restored here.
+ */
 .markdown {
-  line-height: 1.6;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text);
+  text-wrap: pretty;
   word-break: break-word;
 }
 .markdown > :first-child {
@@ -207,27 +155,31 @@ body {
 .markdown ol,
 .markdown pre,
 .markdown blockquote {
-  margin: 0.5rem 0;
+  margin: 0 0 var(--space-2);
 }
 .markdown h1,
 .markdown h2,
 .markdown h3 {
-  margin: 0.75rem 0 0.25rem;
-  font-weight: 600;
-  line-height: 1.3;
+  margin: var(--space-3) 0 var(--space-1);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
 }
 .markdown h1 {
-  font-size: 1.15rem;
+  font-size: var(--text-lg);
 }
 .markdown h2 {
-  font-size: 1.05rem;
+  font-size: var(--text-base);
 }
 .markdown h3 {
-  font-size: 1rem;
+  font-size: var(--text-sm);
+}
+.markdown strong {
+  font-weight: var(--weight-semibold);
 }
 .markdown ul,
 .markdown ol {
-  padding-left: 1.25rem;
+  padding-left: var(--space-5);
 }
 .markdown ul {
   list-style: disc;
@@ -235,27 +187,43 @@ body {
 .markdown ol {
   list-style: decimal;
 }
+.markdown blockquote {
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-secondary);
+}
 .markdown a {
-  color: var(--color-primary);
+  color: var(--accent-text);
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .markdown code {
   font-family: var(--font-mono);
-  font-size: 0.85em;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 0.1em 0.35em;
+  font-size: 0.92em;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 1px 4px;
 }
 .markdown pre {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 0.75rem;
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
   overflow-x: auto;
 }
 .markdown pre code {
   border: 0;
   padding: 0;
   background: transparent;
+}
+
+/*
+ * Scrolling page body (Ticket detail, Settings): v2 20px gutters plus the
+ * landscape notch and the home indicator.
+ */
+.page-content {
+  padding-left: calc(var(--space-5) + env(safe-area-inset-left));
+  padding-right: calc(var(--space-5) + env(safe-area-inset-right));
+  padding-bottom: calc(var(--space-10) + env(safe-area-inset-bottom));
 }

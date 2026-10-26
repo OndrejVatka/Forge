@@ -1,5 +1,11 @@
-import { X } from 'lucide-react';
-import { useState, type ReactElement } from 'react';
+import { Plus } from 'lucide-react';
+import { useId, useState, type ReactElement, type ReactNode } from 'react';
+import { ColorWell } from '../components/ColorWell.js';
+import { TagChip } from '../components/TagChip.js';
+import { ThemeGrid } from '../components/ThemeSwitcher.js';
+import { Button } from '../components/ui/Button.js';
+import { Input } from '../components/ui/Input.js';
+import { SectionLabel } from '../components/ui/SectionLabel.js';
 import { useProjects } from '../hooks/useProjects.js';
 import {
   useCreateProject,
@@ -8,13 +14,15 @@ import {
   useUpdateProject,
 } from '../hooks/useSettings.js';
 import { useTags } from '../hooks/useTags.js';
+import { suggestColor } from '../lib/constants.js';
 
 interface ProjectForm {
   id: string | null;
   name: string;
   slug: string;
   prefix: string;
-  color: string;
+  /** null until picked, so the suggestion can follow the live project count. */
+  color: string | null;
   description: string;
 }
 
@@ -23,9 +31,36 @@ const EMPTY_PROJECT: ProjectForm = {
   name: '',
   slug: '',
   prefix: '',
-  color: '#6366f1',
+  color: null,
   description: '',
 };
+
+/** A settings block: title and description on the left, content on the right. */
+function SettingsSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}): ReactElement {
+  const titleId = useId();
+  return (
+    <section
+      aria-labelledby={titleId}
+      className="grid grid-cols-1 gap-x-8 gap-y-4 border-t border-border py-7 md:grid-cols-[minmax(0,200px)_minmax(0,1fr)]"
+    >
+      <div>
+        <h2 id={titleId} className="text-sm font-semibold text-fg">
+          {title}
+        </h2>
+        <p className="mt-1 text-xs leading-[1.45] text-fg-tertiary">{description}</p>
+      </div>
+      <div className="min-w-0">{children}</div>
+    </section>
+  );
+}
 
 export function Settings(): ReactElement {
   const projectsQuery = useProjects();
@@ -35,10 +70,16 @@ export function Settings(): ReactElement {
   const createTag = useCreateTag();
   const deleteTag = useDeleteTag();
 
+  const projects = projectsQuery.data ?? [];
+  const tags = tagsQuery.data ?? [];
+
   const [form, setForm] = useState<ProjectForm>(EMPTY_PROJECT);
   const [tagName, setTagName] = useState('');
-  const [tagColor, setTagColor] = useState('#94a3b8');
+  // null until picked: suggestions rotate with the count, so consecutive adds differ.
+  const [pickedTagColor, setPickedTagColor] = useState<string | null>(null);
 
+  const projectColor = form.color ?? suggestColor(projects.length);
+  const tagColor = pickedTagColor ?? suggestColor(tags.length);
   const canSaveProject = form.name.trim() && form.slug.trim() && form.prefix.trim();
 
   const resetForm = (): void => setForm(EMPTY_PROJECT);
@@ -49,7 +90,7 @@ export function Settings(): ReactElement {
       name: form.name.trim(),
       slug: form.slug.trim(),
       prefix: form.prefix.trim().toUpperCase(),
-      color: form.color,
+      color: projectColor,
       description: form.description.trim() || null,
     };
     if (form.id) {
@@ -66,164 +107,162 @@ export function Settings(): ReactElement {
       {
         onSuccess: () => {
           setTagName('');
-          setTagColor('#94a3b8');
+          setPickedTagColor(null);
         },
       },
     );
   };
 
   return (
-    <div className="mx-auto h-full w-full max-w-2xl overflow-y-auto px-4 py-6">
-      <h1 className="mb-6 text-lg font-semibold">Settings</h1>
+    <div className="h-full overflow-y-auto">
+      <div className="page-content mx-auto max-w-[820px] pt-7">
+        <h1 className="mb-6 text-2xl font-semibold tracking-[-0.022em] text-fg">Settings</h1>
 
-      {/* Projects */}
-      <section className="mb-8">
-        <h2 className="mb-3 text-sm font-medium text-muted">Projects</h2>
-        <ul className="mb-4 flex flex-col gap-1">
-          {(projectsQuery.data ?? []).map((project) => (
-            <li
-              key={project.id}
-              className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2"
-            >
-              <span className="h-3 w-3 rounded-full" style={{ backgroundColor: project.color }} />
-              <span className="text-sm">{project.name}</span>
-              <span className="font-mono text-xs text-muted">{project.prefix}</span>
-              <button
-                type="button"
-                onClick={() =>
-                  setForm({
-                    id: project.id,
-                    name: project.name,
-                    slug: project.slug,
-                    prefix: project.prefix,
-                    color: project.color,
-                    description: project.description ?? '',
-                  })
-                }
-                className="ml-auto text-xs text-muted hover:text-text"
-              >
-                Edit
-              </button>
-            </li>
-          ))}
-        </ul>
+        <SettingsSection
+          title="Appearance"
+          description="Palette and mode apply to this device only."
+        >
+          <ThemeGrid />
+        </SettingsSection>
 
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <h3 className="mb-3 text-xs font-medium uppercase tracking-wide text-muted">
-            {form.id ? 'Edit project' : 'New project'}
-          </h3>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input
+        <SettingsSection
+          title="Projects"
+          description="Prefix starts each ticket ref. Changing it only affects new tickets."
+        >
+          {projects.length > 0 && (
+            <ul className="mb-4 rounded-md border border-border bg-surface shadow-card">
+              {projects.map((project) => (
+                <li
+                  key={project.id}
+                  className="flex h-10 items-center gap-2.5 border-t border-border pr-1.5 pl-3 first:border-t-0"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="size-2 shrink-0 rounded-[2.5px]"
+                    style={{ backgroundColor: project.color }}
+                  />
+                  <span className="truncate text-sm font-medium text-fg">{project.name}</span>
+                  <span className="truncate font-mono text-2xs text-fg-tertiary">
+                    {project.prefix} · {project.slug}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    label={`Edit ${project.name}`}
+                    className="ml-auto"
+                    onClick={() =>
+                      setForm({
+                        id: project.id,
+                        name: project.name,
+                        slug: project.slug,
+                        prefix: project.prefix,
+                        color: project.color,
+                        description: project.description ?? '',
+                      })
+                    }
+                  >
+                    Edit
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <SectionLabel as="div" className="mb-2">
+            {form.id ? `Edit ${form.name || 'project'}` : 'New project'}
+          </SectionLabel>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
+            <Input
+              aria-label="Name"
               value={form.name}
               onChange={(event) => setForm({ ...form, name: event.target.value })}
               placeholder="Name"
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
             />
-            <input
+            <Input
+              mono
+              aria-label="Slug"
               value={form.slug}
               onChange={(event) => setForm({ ...form, slug: event.target.value })}
-              placeholder="Slug (e.g. proofindex)"
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
+              placeholder="slug"
             />
-            <input
+            <Input
+              mono
+              aria-label="Prefix"
               value={form.prefix}
-              onChange={(event) => setForm({ ...form, prefix: event.target.value })}
-              placeholder="Prefix (e.g. PI)"
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm uppercase outline-none focus:border-primary"
+              onChange={(event) => setForm({ ...form, prefix: event.target.value.toUpperCase() })}
+              placeholder="PREFIX"
             />
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={form.color}
-                onChange={(event) => setForm({ ...form, color: event.target.value })}
-                className="h-9 w-12 cursor-pointer rounded border border-border bg-bg"
-              />
-              <span className="font-mono text-xs text-muted">{form.color}</span>
-            </div>
+            <ColorWell
+              label="Project color"
+              value={projectColor}
+              onChange={(color) => setForm({ ...form, color })}
+            />
           </div>
-          <input
+          <Input
+            aria-label="Description"
             value={form.description}
             onChange={(event) => setForm({ ...form, description: event.target.value })}
             placeholder="Description (optional)"
-            className="mt-3 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
+            className="mt-2"
           />
           {(createProject.isError || updateProject.isError) && (
-            <p className="mt-2 text-xs text-red-400">
-              Could not save the project (slug and prefix must be unique).
+            <p role="alert" className="mt-2 text-xs text-danger">
+              Could not save the project. Slug and prefix must be unique.
             </p>
           )}
-          <div className="mt-3 flex gap-2">
-            <button
-              type="button"
+          <div className="mt-2.5 flex gap-1.5">
+            <Button
+              variant="secondary"
+              icon={form.id ? undefined : Plus}
               onClick={submitProject}
               disabled={!canSaveProject || createProject.isPending || updateProject.isPending}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
             >
               {form.id ? 'Save changes' : 'Add project'}
-            </button>
+            </Button>
             {form.id && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="rounded-lg px-3 py-2 text-sm text-muted hover:text-text"
-              >
+              <Button variant="ghost" onClick={resetForm}>
                 Cancel
-              </button>
+              </Button>
             )}
           </div>
-        </div>
-      </section>
+        </SettingsSection>
 
-      {/* Tags */}
-      <section>
-        <h2 className="mb-3 text-sm font-medium text-muted">Tags</h2>
-        <div className="mb-4 flex flex-wrap gap-1.5">
-          {(tagsQuery.data ?? []).map((tag) => (
-            <span
-              key={tag.id}
-              className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[11px] font-medium"
-              style={{
-                backgroundColor: `${tag.color}1a`,
-                color: tag.color,
-                borderColor: `${tag.color}33`,
-              }}
+        <SettingsSection
+          title="Tags"
+          description="Tag color only drives the dot, so any color reads on every theme."
+        >
+          {tags.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {tags.map((tag) => (
+                <TagChip key={tag.id} tag={tag} onRemove={() => deleteTag.mutate(tag.id)} />
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex-[1_1_160px]">
+              <Input
+                aria-label="Tag name"
+                value={tagName}
+                onChange={(event) => setTagName(event.target.value)}
+                placeholder="New tag name"
+              />
+            </div>
+            <ColorWell label="Tag color" value={tagColor} onChange={setPickedTagColor} />
+            <Button
+              variant="secondary"
+              onClick={submitTag}
+              disabled={!tagName.trim() || createTag.isPending}
             >
-              {tag.name}
-              <button
-                type="button"
-                onClick={() => deleteTag.mutate(tag.id)}
-                className="opacity-70 hover:opacity-100"
-                aria-label={`Delete tag ${tag.name}`}
-              >
-                <X size={11} />
-              </button>
-            </span>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            value={tagName}
-            onChange={(event) => setTagName(event.target.value)}
-            placeholder="New tag name"
-            className="rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
-          />
-          <input
-            type="color"
-            value={tagColor}
-            onChange={(event) => setTagColor(event.target.value)}
-            className="h-9 w-12 cursor-pointer rounded border border-border bg-bg"
-          />
-          <button
-            type="button"
-            onClick={submitTag}
-            disabled={!tagName.trim() || createTag.isPending}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-          >
-            Add tag
-          </button>
-        </div>
-      </section>
+              Add tag
+            </Button>
+          </div>
+          {createTag.isError && (
+            <p role="alert" className="mt-2 text-xs text-danger">
+              Could not add the tag. Tag names must be unique.
+            </p>
+          )}
+        </SettingsSection>
+      </div>
     </div>
   );
 }

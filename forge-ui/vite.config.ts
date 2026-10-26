@@ -17,8 +17,10 @@ export default defineConfig({
         description: 'AI-native project management for Claude Code & Codex',
         start_url: '/',
         display: 'standalone',
-        background_color: '#0f1117',
-        theme_color: '#6366f1',
+        // Graphite dark --bg (the default theme), so the splash and title bar
+        // match the first paint. theme-boot.js retints the live theme-color.
+        background_color: '#0b0c0e',
+        theme_color: '#0b0c0e',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

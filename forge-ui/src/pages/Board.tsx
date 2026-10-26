@@ -7,19 +7,20 @@ import { Column } from '../components/Column.js';
 import { FilterBar, type PriorityFilter } from '../components/FilterBar.js';
 import { FullScreenLoader } from '../components/Spinner.js';
 import { TicketModal } from '../components/TicketModal.js';
+import { Button, buttonClassName } from '../components/ui/Button.js';
+import { Select } from '../components/ui/Select.js';
+import { useHotkey } from '../hooks/useHotkey.js';
 import { useProjects } from '../hooks/useProjects.js';
 import { useRealtime } from '../hooks/useRealtime.js';
 import { useTags } from '../hooks/useTags.js';
 import { useTickets, useUpdateTicketStatus } from '../hooks/useTickets.js';
 import { STATUS_ORDER } from '../lib/constants.js';
-import { useTheme } from '../theme/ThemeProvider.js';
 
 const PROJECT_STORAGE_KEY = 'forge.projectId';
 
 export function Board(): ReactElement {
   const projectsQuery = useProjects();
   const tagsQuery = useTags();
-  const { theme } = useTheme();
 
   const [projectId, setProjectId] = useState<string | undefined>(
     () => localStorage.getItem(PROJECT_STORAGE_KEY) ?? undefined,
@@ -47,6 +48,10 @@ export function Board(): ReactElement {
   const ticketsQuery = useTickets(projectId);
   useRealtime(projectId);
   const updateStatus = useUpdateTicketStatus(projectId);
+
+  // `C` opens the create modal, as the New ticket button's hint says.
+  const hasActiveProject = Boolean(projects?.some((project) => project.id === projectId));
+  useHotkey('c', () => setModalOpen(true), hasActiveProject && !modalOpen);
 
   const filtered = useMemo(() => {
     const tickets = ticketsQuery.data ?? [];
@@ -76,10 +81,10 @@ export function Board(): ReactElement {
 
   if (!projects || projects.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted">
-        <p>No projects yet.</p>
-        <Link to="/settings" className="text-primary hover:underline">
-          Create your first project in Settings
+      <div className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center">
+        <p className="text-sm text-fg-secondary">No projects yet.</p>
+        <Link to="/settings" className={buttonClassName({ variant: 'secondary' })}>
+          Create a project in Settings
         </Link>
       </div>
     );
@@ -89,18 +94,21 @@ export function Board(): ReactElement {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="board-bar flex flex-wrap items-center gap-3 border-b border-border py-3">
-        <select
+      <div className="app-toolbar flex flex-wrap items-center gap-2.5 border-b border-border">
+        <Select
+          variant="ghost"
+          aria-label="Project"
           value={projectId ?? ''}
           onChange={(event) => setProjectId(event.target.value)}
-          className="tap-target rounded-lg border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-primary"
         >
           {projects.map((project) => (
             <option key={project.id} value={project.id}>
               {project.name}
             </option>
           ))}
-        </select>
+        </Select>
+
+        <span aria-hidden="true" className="h-4 w-px bg-border" />
 
         <FilterBar
           tags={tagsQuery.data ?? []}
@@ -110,28 +118,30 @@ export function Board(): ReactElement {
           onToggleTag={toggleTag}
         />
 
-        <button
-          type="button"
+        {/* The label hides on narrow screens, so `label` carries the accessible name. */}
+        <Button
+          icon={Plus}
+          label="New ticket"
+          shortcut="C"
           onClick={() => setModalOpen(true)}
-          className="tap-target ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+          className="ml-auto"
         >
-          <Plus size={16} />
-          <span className="hidden sm:inline">
-            {theme === 'molten' ? 'Forge new ticket' : 'New ticket'}
-          </span>
-        </button>
+          <span className="hidden sm:inline">New ticket</span>
+        </Button>
       </div>
 
       {ticketsQuery.isLoading ? (
         <FullScreenLoader />
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="board-scroll flex min-h-0 flex-1 gap-3 overflow-x-auto">
+          <div className="board-scroll flex min-h-0 flex-1 gap-2.5 overflow-x-auto">
             {STATUS_ORDER.map((status) => (
               <Column
                 key={status}
                 status={status}
                 tickets={filtered.filter((ticket) => ticket.status === status)}
+                // New tickets always start in Backlog, so only that lane offers +.
+                onAdd={status === 'backlog' ? () => setModalOpen(true) : undefined}
               />
             ))}
           </div>

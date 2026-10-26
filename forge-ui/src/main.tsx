@@ -6,7 +6,6 @@ import { App } from './App.js';
 import { AuthProvider } from './auth/AuthProvider.js';
 import './index.css';
 import { queryClient } from './lib/queryClient.js';
-import { ThemeProvider } from './theme/ThemeProvider.js';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Root element #root not found');
@@ -17,11 +16,9 @@ createRoot(rootElement).render(
       {/* The v7_startTransition and v7_relativeSplatPath opt-ins are gone: both
           are the default behaviour in React Router 7, and the prop no longer exists. */}
       <BrowserRouter>
-        <ThemeProvider>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,

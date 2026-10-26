@@ -1,27 +1,45 @@
 import type { Priority } from '@forge/shared';
 import type { ReactElement } from 'react';
-import { priorityMeta } from '../lib/constants.js';
-import { useTheme } from '../theme/ThemeProvider.js';
+import { PRIORITY_META } from '../lib/constants.js';
 
-export function PriorityBadge({ priority }: { priority: Priority }): ReactElement {
-  const { theme } = useTheme();
-  const meta = priorityMeta(theme, priority);
+const BAR_HEIGHTS = ['h-1', 'h-[7px]', 'h-2.5'] as const;
+const FILLED_BARS: Record<Priority, number> = { low: 1, medium: 2, high: 3 };
+/* Only high is coloured, so the board doesn't turn into confetti. */
+const FILL_CLASS: Record<Priority, string> = {
+  low: 'bg-priority-low',
+  medium: 'bg-priority-medium',
+  high: 'bg-priority-high',
+};
 
-  // Molten swaps the dot for a diamond glyph and tints the whole badge, where
-  // the base skin keeps a muted label beside a coloured dot.
-  if (theme === 'molten') {
-    return (
-      <span className="inline-flex items-center gap-1 text-[13px]" style={{ color: meta.color }}>
-        <span aria-hidden="true">◆</span>
-        {meta.label}
-      </span>
-    );
-  }
+interface PriorityBadgeProps {
+  priority: Priority;
+  /** Text label beside the bars. Cards hide it; screen readers always get it. */
+  showLabel?: boolean;
+}
+
+/**
+ * Signal-bar priority glyph: 1–3 of three ascending bars filled.
+ * @example <PriorityBadge priority="high" showLabel={false} />
+ */
+export function PriorityBadge({ priority, showLabel = true }: PriorityBadgeProps): ReactElement {
+  const { label } = PRIORITY_META[priority];
 
   return (
-    <span className="inline-flex items-center gap-1 text-[11px] text-muted">
-      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />
-      {meta.label}
+    <span
+      title={`${label} priority`}
+      className="inline-flex items-center gap-1.5 text-2xs leading-none text-fg-secondary"
+    >
+      <span aria-hidden="true" className="inline-flex h-2.5 items-end gap-[1.5px]">
+        {BAR_HEIGHTS.map((height, index) => (
+          <span
+            key={height}
+            className={`w-[3px] rounded-[1px] ${height} ${
+              index < FILLED_BARS[priority] ? FILL_CLASS[priority] : 'bg-border-strong'
+            }`}
+          />
+        ))}
+      </span>
+      {showLabel ? label : <span className="sr-only">{label} priority</span>}
     </span>
   );
 }

@@ -1,61 +1,74 @@
-import type { Priority, TicketStatus } from '@forge/shared';
-import type { Theme } from '../theme/ThemeProvider.js';
+import type { CommentAuthor, Priority, TicketStatus } from '@forge/shared';
 
-interface StatusMeta {
-  label: string;
-  /** Hex colour for the column header accent (applied inline). */
-  color: string;
-}
+/*
+ * Status and priority colours are theme tokens (--status-*, --priority-*),
+ * applied by StatusMark and PriorityBadge, so only labels live here.
+ */
 
 /** Left-to-right column order on the board. */
 export const STATUS_ORDER: readonly TicketStatus[] = ['backlog', 'in_dev', 'review', 'done'];
 
-export const STATUS_META: Record<TicketStatus, StatusMeta> = {
-  backlog: { label: 'Backlog', color: '#475569' },
-  in_dev: { label: 'In Dev', color: '#3b82f6' },
-  review: { label: 'Review', color: '#f59e0b' },
-  done: { label: 'Done', color: '#10b981' },
+export const STATUS_META: Record<TicketStatus, { label: string }> = {
+  backlog: { label: 'Backlog' },
+  in_dev: { label: 'In Dev' },
+  review: { label: 'Review' },
+  done: { label: 'Done' },
 };
 
-/** Molten Forge status colours — brighter, to read against the char-black panels. */
-const MOLTEN_STATUS_META: Record<TicketStatus, StatusMeta> = {
-  backlog: { label: 'Backlog', color: '#78909c' },
-  in_dev: { label: 'In Dev', color: '#42a5f5' },
-  review: { label: 'Review', color: '#ffca28' },
-  done: { label: 'Done', color: '#66bb6a' },
+export const PRIORITY_META: Record<Priority, { label: string }> = {
+  low: { label: 'Low' },
+  medium: { label: 'Medium' },
+  high: { label: 'High' },
 };
 
-interface PriorityMeta {
-  label: string;
-  /** Hex colour for the priority dot (applied inline). */
-  color: string;
-}
+/** Creators whose tickets and comments get the ⚡ agent marker. */
+export const AI_CREATORS = ['claude-code', 'codex', 'hermes'] as const;
+export type AgentName = (typeof AI_CREATORS)[number];
 
-export const PRIORITY_META: Record<Priority, PriorityMeta> = {
-  low: { label: 'Low', color: '#64748b' },
-  medium: { label: 'Medium', color: '#6366f1' },
-  high: { label: 'High', color: '#ef4444' },
-};
-
-/** Molten Forge priority colours — ember tones rather than the indigo scale. */
-const MOLTEN_PRIORITY_META: Record<Priority, PriorityMeta> = {
-  low: { label: 'Low', color: '#8d6e63' },
-  medium: { label: 'Medium', color: '#ff6d00' },
-  high: { label: 'High', color: '#ff5252' },
+/** Short agent names for the compact board marker (mono, lowercase). */
+export const AGENT_SHORT_NAMES: Record<AgentName, string> = {
+  'claude-code': 'claude',
+  codex: 'codex',
+  hermes: 'hermes',
 };
 
 /**
- * Status and priority colours are applied inline from ticket data, so they
- * cannot be re-skinned by the CSS custom-property overrides that carry the
- * rest of the molten theme — they need an explicit per-theme lookup.
+ * Whether a created_by / comment author is an AI agent.
+ * @param author - A ticket's created_by or a comment's author.
+ * @returns True for the agents in AI_CREATORS.
  */
-export function statusMeta(theme: Theme, status: TicketStatus): StatusMeta {
-  return theme === 'molten' ? MOLTEN_STATUS_META[status] : STATUS_META[status];
+export function isAgent(author: string): author is AgentName {
+  return (AI_CREATORS as readonly string[]).includes(author);
 }
 
-export function priorityMeta(theme: Theme, priority: Priority): PriorityMeta {
-  return theme === 'molten' ? MOLTEN_PRIORITY_META[priority] : PRIORITY_META[priority];
-}
+/** Display names for ticket creators and comment authors. */
+export const AUTHOR_LABELS: Record<CommentAuthor, string> = {
+  // `human` isn't tied to a user account, so not "You".
+  human: 'Human',
+  'claude-code': 'Claude Code',
+  codex: 'Codex',
+  hermes: 'Hermes',
+  system: 'System',
+};
 
-/** Creators whose tickets get the ⚡ AI-built indicator. */
-export const AI_CREATORS = ['claude-code', 'codex', 'hermes'] as const;
+/**
+ * Suggested colours for new tags and projects (they only colour a dot or a
+ * square, so any of them reads on every theme). Rotated by count.
+ */
+export const COLOR_SUGGESTIONS = [
+  '#e5484d',
+  '#30a46c',
+  '#3e8ed0',
+  '#8e4ec6',
+  '#d6409f',
+  '#e8590c',
+] as const;
+
+/**
+ * Picks the next suggested colour so consecutive additions differ.
+ * @param count - How many items already exist.
+ * @returns A hex colour from COLOR_SUGGESTIONS.
+ */
+export function suggestColor(count: number): string {
+  return COLOR_SUGGESTIONS[count % COLOR_SUGGESTIONS.length] ?? COLOR_SUGGESTIONS[0];
+}

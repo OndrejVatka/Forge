@@ -1,28 +1,43 @@
 import { Draggable, Droppable } from '@hello-pangea/dnd';
 import type { TicketStatus, TicketWithRelations } from '@forge/shared';
+import { Plus } from 'lucide-react';
 import type { ReactElement } from 'react';
-import { statusMeta } from '../lib/constants.js';
-import { useTheme } from '../theme/ThemeProvider.js';
+import { STATUS_META } from '../lib/constants.js';
+import { StatusMark } from './StatusMark.js';
 import { TicketCard } from './TicketCard.js';
+import { Button } from './ui/Button.js';
 
 interface ColumnProps {
   status: TicketStatus;
   tickets: TicketWithRelations[];
+  /** Shows a ghost + in the header that opens the create modal. */
+  onAdd?: () => void;
 }
 
-export function Column({ status, tickets }: ColumnProps): ReactElement {
-  const { theme } = useTheme();
-  const meta = statusMeta(theme, status);
+/** A board lane: tinted, borderless (cards carry the hairlines), with a drop zone. */
+export function Column({ status, tickets, onAdd }: ColumnProps): ReactElement {
+  const { label } = STATUS_META[status];
 
   return (
-    <div
+    <section
+      aria-label={label}
       data-status={status}
-      className="board-column flex min-w-[260px] flex-1 flex-col rounded-lg border border-border/60 bg-surface/30"
+      className="board-column flex min-w-[272px] flex-1 flex-col rounded-lg bg-bg-subtle"
     >
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-        <span className="status-dot h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />
-        <span className="text-sm font-medium">{meta.label}</span>
-        <span className="ml-auto text-xs text-muted">{tickets.length}</span>
+      <div className="flex h-9 shrink-0 items-center gap-2 pr-1.5 pl-3">
+        <StatusMark status={status} />
+        <h2 className="text-sm font-medium tracking-[-0.012em] text-fg">{label}</h2>
+        <span className="font-mono text-2xs text-fg-tertiary">{tickets.length}</span>
+        {onAdd && (
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={Plus}
+            label={`New ticket in ${label}`}
+            onClick={onAdd}
+            className="ml-auto"
+          />
+        )}
       </div>
 
       <Droppable droppableId={status}>
@@ -30,7 +45,7 @@ export function Column({ status, tickets }: ColumnProps): ReactElement {
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2 transition-colors ${
+            className={`flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto rounded-b-lg px-1.5 pb-1.5 transition-[background-color] duration-[120ms] ${
               snapshot.isDraggingOver ? 'bg-surface-hover/40' : ''
             }`}
           >
@@ -48,9 +63,15 @@ export function Column({ status, tickets }: ColumnProps): ReactElement {
               </Draggable>
             ))}
             {provided.placeholder}
+            {/* Keeps an empty lane visible as a drop target. */}
+            {tickets.length === 0 && !snapshot.isDraggingOver && (
+              <div className="rounded-md border border-dashed border-border px-2 py-3.5 text-center text-xs text-fg-tertiary">
+                No tickets
+              </div>
+            )}
           </div>
         )}
       </Droppable>
-    </div>
+    </section>
   );
 }

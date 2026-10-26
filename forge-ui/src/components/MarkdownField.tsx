@@ -1,5 +1,8 @@
 import { useState, type ReactElement } from 'react';
 import { Markdown } from './Markdown.js';
+import { Button } from './ui/Button.js';
+import { SectionLabel } from './ui/SectionLabel.js';
+import { Textarea } from './ui/Textarea.js';
 
 interface MarkdownFieldProps {
   label: string;
@@ -31,49 +34,37 @@ export function MarkdownField({
 
   return (
     <section>
-      <div className="mb-1 flex items-center justify-between">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-muted">{label}</h3>
+      <div className="mb-1.5 flex h-6 items-center justify-between">
+        <SectionLabel>{label}</SectionLabel>
         {!editing && (
-          <button
-            type="button"
-            onClick={startEditing}
-            className="text-xs text-muted hover:text-text"
-          >
+          <Button variant="ghost" size="sm" onClick={startEditing}>
             Edit
-          </button>
+          </Button>
         )}
       </div>
 
       {editing ? (
         <div>
-          <textarea
+          <Textarea
             autoFocus
+            aria-label={label}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             rows={4}
-            className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
           />
-          <div className="mt-2 flex gap-2">
-            <button
-              type="button"
-              onClick={save}
-              className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-hover"
-            >
+          <div className="mt-2 flex gap-1.5">
+            <Button variant="secondary" size="sm" onClick={save}>
               Save
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditing(false)}
-              className="rounded-md px-3 py-1.5 text-xs text-muted hover:text-text"
-            >
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       ) : value ? (
         <Markdown>{value}</Markdown>
       ) : (
-        <p className="text-sm text-muted">{placeholder}</p>
+        <p className="text-sm text-fg-tertiary">{placeholder}</p>
       )}
     </section>
   );

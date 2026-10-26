@@ -1,0 +1,24 @@
+:root {
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --control-sm: 24px;
+  --control-md: 28px;
+  --control-lg: 32px;
+  --header-h: 44px;
+  --toolbar-h: 40px;
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-full: 9999px;
+  --duration-fast: 120ms; /* @kind other */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1); /* @kind other */
+}

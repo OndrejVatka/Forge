@@ -38,18 +38,31 @@ describe('TicketCard', () => {
     expect(screen.getByText('Wire up the thing')).toBeInTheDocument();
   });
 
-  it('should show the ⚡ indicator for AI-created tickets', () => {
-    renderCard(makeTicket({ created_by: 'claude-code' }));
-    expect(screen.getByLabelText('Created by claude-code')).toBeInTheDocument();
-  });
-
-  it('should show the ⚡ indicator for hermes-created tickets', () => {
-    renderCard(makeTicket({ created_by: 'hermes' }));
-    expect(screen.getByLabelText('Created by hermes')).toBeInTheDocument();
+  it.each([
+    ['claude-code', 'claude'],
+    ['codex', 'codex'],
+    ['hermes', 'hermes'],
+  ] as const)('should show the ⚡ agent marker for %s tickets', (createdBy, shortName) => {
+    renderCard(makeTicket({ created_by: createdBy }));
+    expect(screen.getByTitle(`Created by ${createdBy}`)).toHaveTextContent(shortName);
   });
 
   it('should not show the ⚡ indicator for human-created tickets', () => {
     renderCard(makeTicket({ created_by: 'human' }));
-    expect(screen.queryByLabelText(/Created by/)).not.toBeInTheDocument();
+    expect(screen.queryByTitle(/Created by/)).not.toBeInTheDocument();
+  });
+
+  it('should name the priority for screen readers while showing only bars', () => {
+    renderCard(makeTicket({ priority: 'high' }));
+    expect(screen.getByText('High priority')).toHaveClass('sr-only');
+  });
+
+  it('should list the ticket tags', () => {
+    renderCard(
+      makeTicket({
+        tags: [{ id: 'g1', name: 'bug', color: '#e5484d' }],
+      }),
+    );
+    expect(screen.getByText('bug')).toBeInTheDocument();
   });
 });
