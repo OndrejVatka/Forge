@@ -13,7 +13,8 @@
   --acc-d: oklch(0.72 0.185 45);
   --acc-d-fg: oklch(0.17 0.02 45);
   --acc-d-text: oklch(0.76 0.16 50);
-  --acc-l: oklch(0.6 0.19 47);
+  /* Forge: L 0.6 → 0.575 so white labels on the fill reach 4.5:1 (was 4.14). */
+  --acc-l: oklch(0.575 0.19 47);
   --acc-l-fg: oklch(0.99 0 0);
   --acc-l-text: oklch(0.55 0.18 45);
   --ai-d: var(--acc-d-text);
@@ -49,7 +50,8 @@
   --acc-d: oklch(0.74 0.15 30);
   --acc-d-fg: oklch(0.18 0.03 262);
   --acc-d-text: oklch(0.76 0.14 30);
-  --acc-l: oklch(0.6 0.17 30);
+  /* Forge: L 0.6 → 0.575 so white labels on the fill reach 4.5:1 (was 4.18). */
+  --acc-l: oklch(0.575 0.17 30);
   --acc-l-fg: oklch(0.99 0 0);
   --acc-l-text: oklch(0.55 0.17 30);
   --ai-d: var(--acc-d-text);
@@ -83,7 +85,8 @@
   --border-strong: oklch(0.35 var(--n-c) var(--n-h));
   --text: oklch(0.95 calc(var(--n-c) * 0.5) var(--n-h));
   --text-secondary: oklch(0.74 calc(var(--n-c) * 0.8) var(--n-h));
-  --text-tertiary: oklch(0.57 var(--n-c) var(--n-h));
+  /* Forge: L 0.57 → 0.62 for 4.5:1 on every dark surface (was 3.99–4.39). */
+  --text-tertiary: oklch(0.62 var(--n-c) var(--n-h));
   --accent: var(--acc-d);
   --accent-fg: var(--acc-d-fg);
   --accent-text: var(--acc-d-text);
@@ -122,7 +125,8 @@
   --border-strong: oklch(0.84 var(--n-c) var(--n-h));
   --text: oklch(0.2 var(--n-c) var(--n-h));
   --text-secondary: oklch(0.44 var(--n-c) var(--n-h));
-  --text-tertiary: oklch(0.58 var(--n-c) var(--n-h));
+  /* Forge: L 0.58 → 0.535 for 4.5:1 on every light surface (was 3.80–4.27). */
+  --text-tertiary: oklch(0.535 var(--n-c) var(--n-h));
   --accent: var(--acc-l);
   --accent-fg: var(--acc-l-fg);
   --accent-text: var(--acc-l-text);
