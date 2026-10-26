@@ -18,7 +18,11 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          // Plain JS served as-is from public/ (no tsconfig covers it), still
+          // linted with type info rather than ignored.
+          allowDefaultProject: ['forge-ui/public/*.js'],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },
