@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PALETTES, STORAGE_KEY, THEME_COLORS, applyTheme, parseTheme } from './theme.js';
 
 /*
  * public/theme-boot.js is a plain classic script (it has to be, to run
@@ -38,6 +39,44 @@ describe('theme boot script', () => {
     vi.restoreAllMocks();
   });
 
+  /*
+   * The boot script can't import the app runtime, so these keep the two in
+   * lockstep: same theme-color table, same handling of any stored value.
+   */
+  describe('parity with the app runtime', () => {
+    it.each(
+      PALETTES.flatMap((palette) =>
+        (['dark', 'light'] as const).map((mode) => [palette, mode] as const),
+      ),
+    )('should set the runtime theme colour for %s %s', async (palette, mode) => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ palette, mode }));
+
+      await runBootScript();
+
+      expect(root.dataset.palette).toBe(palette);
+      expect(root.dataset.mode).toBe(mode);
+      expect(themeColor()).toBe(THEME_COLORS[palette][mode]);
+    });
+
+    it.each([
+      '{"palette":"navy","mode":"dim"}',
+      '{"palette":"neon","mode":"light"}',
+      '{"palette":"slate","mode":"system"}',
+      '{"palette":"constructor"}',
+      '"navy"',
+      'null',
+      '{palette:',
+    ])('should resolve %s the same way as parseTheme', async (raw) => {
+      localStorage.setItem(STORAGE_KEY, raw);
+      await runBootScript();
+      const booted = { ...root.dataset, themeColor: themeColor() };
+
+      applyTheme(parseTheme(raw));
+
+      expect({ ...root.dataset, themeColor: themeColor() }).toEqual(booted);
+    });
+  });
+
   describe('when nothing is stored', () => {
     it('should apply graphite dark and its theme colour', async () => {
       await runBootScript();
@@ -50,7 +89,7 @@ describe('theme boot script', () => {
 
   describe('when a valid theme is stored', () => {
     it('should apply the stored palette and mode', async () => {
-      localStorage.setItem('forge-theme', JSON.stringify({ palette: 'navy', mode: 'light' }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ palette: 'navy', mode: 'light' }));
 
       await runBootScript();
 
@@ -63,7 +102,7 @@ describe('theme boot script', () => {
   describe('when the stored mode is system', () => {
     it('should resolve to light when the OS prefers light', async () => {
       stubPrefersLight(true);
-      localStorage.setItem('forge-theme', JSON.stringify({ palette: 'ink', mode: 'system' }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ palette: 'ink', mode: 'system' }));
 
       await runBootScript();
 
@@ -72,7 +111,7 @@ describe('theme boot script', () => {
     });
 
     it('should resolve to dark when the OS prefers dark', async () => {
-      localStorage.setItem('forge-theme', JSON.stringify({ palette: 'ink', mode: 'system' }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ palette: 'ink', mode: 'system' }));
 
       await runBootScript();
 
@@ -89,7 +128,7 @@ describe('theme boot script', () => {
       ['JSON null', 'null'],
       ['corrupt JSON', '{palette:'],
     ])('should fall back to the defaults for %s', async (_case, raw) => {
-      localStorage.setItem('forge-theme', raw);
+      localStorage.setItem(STORAGE_KEY, raw);
 
       await runBootScript();
 
