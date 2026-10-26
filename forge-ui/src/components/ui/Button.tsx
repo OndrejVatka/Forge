@@ -102,7 +102,9 @@ export function Button({
       {icon && <Icon icon={icon} size={size === 'sm' ? 14 : 16} />}
       {children}
       {shortcut && (
-        <kbd className="-mr-1 ml-0.5 inline-flex pointer-coarse:hidden h-4 items-center rounded-xs bg-[color-mix(in_oklch,currentColor_14%,transparent)] px-1 font-mono text-[10px] font-medium opacity-85">
+        // Outlined, not tinted or dimmed: the hint's text must sit on the raw
+        // button fill, or white-on-accent drops to ~3:1 in light palettes.
+        <kbd className="-mr-1 ml-0.5 inline-flex pointer-coarse:hidden h-4 items-center rounded-xs px-1 font-mono text-[10px] font-medium shadow-[inset_0_0_0_1px_color-mix(in_oklch,currentColor_45%,transparent)]">
           {shortcut}
         </kbd>
       )}

@@ -62,5 +62,15 @@ describe('Button', () => {
 
       expect(screen.getByText('C').tagName).toBe('KBD');
     });
+
+    // Regression guard (FO-24): a dimmed or tinted hint fell to ~3:1 on the
+    // light accent fills. Its text has to sit on the raw button fill, which
+    // the token contrast test keeps at ≥ 4.5:1.
+    it('should draw the hint at full strength, without dimming or tinting', () => {
+      render(<Button shortcut="C">New ticket</Button>);
+
+      const hint = screen.getByText('C');
+      expect(hint.className).not.toMatch(/(^|\s)(opacity-|bg-)/);
+    });
   });
 });
