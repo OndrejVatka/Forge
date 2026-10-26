@@ -45,7 +45,11 @@ export function Column({ status, tickets, onAdd }: ColumnProps): ReactElement {
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto rounded-b-lg px-1.5 pb-1.5 transition-[background-color] duration-[120ms] ${
+            // `relative` makes this scroller the containing block for anything
+            // absolutely positioned inside the cards (e.g. `.sr-only` labels).
+            // Without it they escape its clipping, stretch the document, and
+            // the whole page scrolls the fixed-height board out of view.
+            className={`relative flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto rounded-b-lg px-1.5 pb-1.5 transition-[background-color] duration-[120ms] ${
               snapshot.isDraggingOver ? 'bg-surface-hover/40' : ''
             }`}
           >

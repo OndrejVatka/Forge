@@ -17,7 +17,7 @@ export function TicketCard({ ticket }: { ticket: TicketWithRelations }): ReactEl
   return (
     <div
       onClick={() => void navigate(`/ticket/${ticket.ticket_ref}`)}
-      className="cursor-pointer rounded-md border border-border bg-surface px-2.5 pt-[9px] pb-2.5 shadow-card transition-[border-color,background-color] duration-[120ms] hover:border-border-strong hover:bg-surface-hover"
+      className="relative cursor-pointer rounded-md border border-border bg-surface px-2.5 pt-[9px] pb-2.5 shadow-card transition-[border-color,background-color] duration-[120ms] hover:border-border-strong hover:bg-surface-hover"
     >
       <div className="flex h-4 items-center gap-2">
         <span className="font-mono text-2xs tracking-[0.01em] text-fg-tertiary">
