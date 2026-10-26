@@ -61,20 +61,6 @@
   --shadow-pop: var(--shadow-pop);
 }
 
-/*
- * TEMPORARY v1 → v2 bridge: v1 utility names with no v2 equivalent, so
- * unmigrated markup re-skins with the palette. bg / surface / surface-hover /
- * border share names with v2 and need no alias. (The handoff's bridge used
- * `forge-*` names, which this codebase never had.) Delete once
- * `grep -rnE "(bg|text|border)-(primary|text|muted)" src/` is clean.
- */
-@theme inline {
-  --color-primary: var(--accent);
-  --color-primary-hover: var(--accent-hover);
-  --color-text: var(--text);
-  --color-muted: var(--text-tertiary);
-}
-
 html,
 body,
 #root {
