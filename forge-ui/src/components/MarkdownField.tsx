@@ -33,8 +33,10 @@ export function MarkdownField({
 
   return (
     <section>
-      <div className="mb-1 flex items-center justify-between">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-muted">{label}</h3>
+      <div className="mb-1.5 flex h-6 items-center justify-between">
+        <h3 className="text-2xs font-medium tracking-[0.04em] text-fg-tertiary uppercase">
+          {label}
+        </h3>
         {!editing && (
           <Button variant="ghost" size="sm" onClick={startEditing}>
             Edit
@@ -51,7 +53,7 @@ export function MarkdownField({
             onChange={(event) => setDraft(event.target.value)}
             rows={4}
           />
-          <div className="mt-2 flex gap-2">
+          <div className="mt-2 flex gap-1.5">
             <Button variant="secondary" size="sm" onClick={save}>
               Save
             </Button>
@@ -63,7 +65,7 @@ export function MarkdownField({
       ) : value ? (
         <Markdown>{value}</Markdown>
       ) : (
-        <p className="text-sm text-muted">{placeholder}</p>
+        <p className="text-sm text-fg-tertiary">{placeholder}</p>
       )}
     </section>
   );
