@@ -98,8 +98,8 @@ body {
   padding-right: calc(var(--space-3) + env(safe-area-inset-right));
 }
 
-/* Board toolbar (40px; wraps taller on narrow screens): clear the landscape notch. */
-.board-bar {
+/* 40px page toolbar (board filters, ticket breadcrumb); wraps taller on narrow screens and clears the landscape notch. */
+.app-toolbar {
   min-height: var(--toolbar-h);
   padding-top: var(--space-1-5);
   padding-bottom: var(--space-1-5);

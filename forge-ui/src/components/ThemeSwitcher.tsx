@@ -8,6 +8,7 @@ import {
 } from '../lib/theme.js';
 import { useTheme } from '../lib/theme-context.js';
 import { Icon } from './ui/Icon.js';
+import { SectionLabel } from './ui/SectionLabel.js';
 import { SegmentedControl, type SegmentOption } from './ui/SegmentedControl.js';
 
 export const MODE_OPTIONS: readonly SegmentOption<ForgeMode>[] = [
@@ -96,12 +97,9 @@ export function ThemeMenu(): ReactElement {
           aria-label="Theme"
           className="absolute top-[calc(100%+6px)] right-0 z-60 w-[280px] rounded-md border border-border bg-surface-raised p-1 shadow-pop"
         >
-          <div
-            id={`${popoverId}-palette`}
-            className="px-2 pt-1.5 pb-1 text-2xs font-medium tracking-[0.04em] text-fg-tertiary uppercase"
-          >
+          <SectionLabel as="div" id={`${popoverId}-palette`} className="px-2 pt-1.5 pb-1">
             Palette
-          </div>
+          </SectionLabel>
           <div role="group" aria-labelledby={`${popoverId}-palette`}>
             {FORGE_PALETTES.map((palette) => {
               const isSelected = palette.id === theme.palette;

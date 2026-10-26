@@ -94,7 +94,7 @@ export function Board(): ReactElement {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="board-bar flex flex-wrap items-center gap-2 border-b border-border">
+      <div className="app-toolbar flex flex-wrap items-center gap-2 border-b border-border">
         <Select
           variant="ghost"
           aria-label="Project"

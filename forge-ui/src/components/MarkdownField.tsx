@@ -1,6 +1,7 @@
 import { useState, type ReactElement } from 'react';
 import { Markdown } from './Markdown.js';
 import { Button } from './ui/Button.js';
+import { SectionLabel } from './ui/SectionLabel.js';
 import { Textarea } from './ui/Textarea.js';
 
 interface MarkdownFieldProps {
@@ -34,9 +35,7 @@ export function MarkdownField({
   return (
     <section>
       <div className="mb-1.5 flex h-6 items-center justify-between">
-        <h3 className="text-2xs font-medium tracking-[0.04em] text-fg-tertiary uppercase">
-          {label}
-        </h3>
+        <SectionLabel>{label}</SectionLabel>
         {!editing && (
           <Button variant="ghost" size="sm" onClick={startEditing}>
             Edit
