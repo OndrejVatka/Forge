@@ -1,21 +1,9 @@
 import type { Comment, CommentAuthor } from '@forge/shared';
 import { User, Zap } from 'lucide-react';
 import type { ReactElement } from 'react';
-import { isAgent } from '../lib/constants.js';
+import { AUTHOR_LABELS, isAgent } from '../lib/constants.js';
 import { Markdown } from './Markdown.js';
 import { Icon } from './ui/Icon.js';
-
-/*
- * `human` isn't tied to a user, so it stays "Human" rather than the handoff's
- * "You", which would be wrong for anyone but the author.
- */
-const AUTHOR_LABELS: Record<CommentAuthor, string> = {
-  human: 'Human',
-  'claude-code': 'Claude Code',
-  codex: 'Codex',
-  hermes: 'Hermes',
-  system: 'System',
-};
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {

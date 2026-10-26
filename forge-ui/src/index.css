@@ -231,3 +231,13 @@ body {
   padding: 0;
   background: transparent;
 }
+
+/*
+ * Scrolling page body (Ticket detail, Settings): v2 20px gutters plus the
+ * landscape notch and the home indicator.
+ */
+.page-content {
+  padding-left: calc(var(--space-5) + env(safe-area-inset-left));
+  padding-right: calc(var(--space-5) + env(safe-area-inset-right));
+  padding-bottom: calc(var(--space-10) + env(safe-area-inset-bottom));
+}

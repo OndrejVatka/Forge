@@ -1,4 +1,4 @@
-import type { Priority, TicketStatus } from '@forge/shared';
+import type { CommentAuthor, Priority, TicketStatus } from '@forge/shared';
 
 /*
  * Status and priority colours are theme tokens (--status-*, --priority-*),
@@ -39,4 +39,36 @@ export const AGENT_SHORT_NAMES: Record<AgentName, string> = {
  */
 export function isAgent(author: string): author is AgentName {
   return (AI_CREATORS as readonly string[]).includes(author);
+}
+
+/** Display names for ticket creators and comment authors. */
+export const AUTHOR_LABELS: Record<CommentAuthor, string> = {
+  // `human` isn't tied to a user account, so not "You".
+  human: 'Human',
+  'claude-code': 'Claude Code',
+  codex: 'Codex',
+  hermes: 'Hermes',
+  system: 'System',
+};
+
+/**
+ * Suggested colours for new tags and projects (they only colour a dot or a
+ * square, so any of them reads on every theme). Rotated by count.
+ */
+export const COLOR_SUGGESTIONS = [
+  '#e5484d',
+  '#30a46c',
+  '#3e8ed0',
+  '#8e4ec6',
+  '#d6409f',
+  '#e8590c',
+] as const;
+
+/**
+ * Picks the next suggested colour so consecutive additions differ.
+ * @param count - How many items already exist.
+ * @returns A hex colour from COLOR_SUGGESTIONS.
+ */
+export function suggestColor(count: number): string {
+  return COLOR_SUGGESTIONS[count % COLOR_SUGGESTIONS.length] ?? COLOR_SUGGESTIONS[0];
 }

@@ -44,6 +44,34 @@ const SIZE_CLASSES: Record<ButtonSize, { box: string; square: string; text: stri
 };
 
 /**
+ * The v2 button classes, for elements that must look like a Button but are
+ * something else (e.g. a router Link to keep navigation semantics).
+ * @example <Link to="/" className={buttonClassName({ variant: 'ghost', size: 'sm' })}>Board</Link>
+ */
+export function buttonClassName({
+  variant = 'primary',
+  size = 'md',
+  isIconOnly = false,
+  fullWidth = false,
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  isIconOnly?: boolean;
+  fullWidth?: boolean;
+} = {}): string {
+  const sizing = SIZE_CLASSES[size];
+  return [
+    'tap-target inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap',
+    'rounded-sm border font-medium tracking-[-0.012em] transition-[color,background-color,border-color] duration-[120ms]',
+    'disabled:cursor-default disabled:opacity-45',
+    VARIANT_CLASSES[variant],
+    sizing.text,
+    isIconOnly ? `tap-target-square ${sizing.square}` : sizing.box,
+    fullWidth ? 'w-full' : '',
+  ].join(' ');
+}
+
+/**
  * The v2 button. Defaults to `type="button"` so it never submits a form by
  * accident; pass `type="submit"` explicitly.
  * @example <Button icon={Plus} onClick={open}>New ticket</Button>
@@ -62,23 +90,13 @@ export function Button({
   ...rest
 }: ButtonProps): ReactElement {
   const isIconOnly = icon !== undefined && children === undefined;
-  const sizing = SIZE_CLASSES[size];
 
   return (
     <button
       type={type}
       aria-label={label}
       title={label}
-      className={[
-        'tap-target inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap',
-        'rounded-sm border font-medium tracking-[-0.012em] transition-[color,background-color,border-color] duration-[120ms]',
-        'disabled:cursor-default disabled:opacity-45',
-        VARIANT_CLASSES[variant],
-        sizing.text,
-        isIconOnly ? `tap-target-square ${sizing.square}` : sizing.box,
-        fullWidth ? 'w-full' : '',
-        className ?? '',
-      ].join(' ')}
+      className={`${buttonClassName({ variant, size, isIconOnly, fullWidth })} ${className ?? ''}`}
       {...rest}
     >
       {icon && <Icon icon={icon} size={size === 'sm' ? 14 : 16} />}
