@@ -11,7 +11,7 @@ import { Icon } from './ui/Icon.js';
 import { SectionLabel } from './ui/SectionLabel.js';
 import { SegmentedControl, type SegmentOption } from './ui/SegmentedControl.js';
 
-export const MODE_OPTIONS: readonly SegmentOption<ForgeMode>[] = [
+const MODE_OPTIONS: readonly SegmentOption<ForgeMode>[] = [
   { value: 'light', label: 'Light', icon: Sun },
   { value: 'dark', label: 'Dark', icon: Moon },
   { value: 'system', label: 'System', icon: Monitor },
@@ -21,7 +21,7 @@ export const MODE_OPTIONS: readonly SegmentOption<ForgeMode>[] = [
  * Two-tone dot (surface over accent) in a palette's own data-palette/data-mode
  * scope, so it shows that palette's real tokens anywhere on the page.
  */
-export function PaletteSwatch({
+function PaletteSwatch({
   palette,
   mode,
 }: {
@@ -137,6 +137,103 @@ export function ThemeMenu(): ReactElement {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** A 16:10 mini board rendered in one palette's own scope, so it shows its real tokens. */
+function PalettePreview({
+  palette,
+  mode,
+  isSelected,
+}: {
+  palette: ForgePalette;
+  mode: ResolvedMode;
+  isSelected: boolean;
+}): ReactElement {
+  return (
+    <div
+      aria-hidden="true"
+      data-palette={palette}
+      data-mode={mode}
+      className={`flex aspect-[16/10] w-full gap-[5px] rounded-md bg-bg p-2 transition-[outline-color] duration-[120ms] ${
+        isSelected
+          ? 'outline-2 outline-offset-2 outline-accent-text'
+          : 'outline-1 outline-border group-hover:outline-border-strong'
+      }`}
+    >
+      {[2, 1].map((cardCount, lane) => (
+        <div key={lane} className="flex flex-1 flex-col gap-1 rounded-[4px] bg-bg-subtle p-1">
+          <span className="h-[3px] w-[18px] rounded-[2px] bg-fg-tertiary" />
+          {Array.from({ length: cardCount }, (_, card) => (
+            <span
+              key={card}
+              className="flex flex-col gap-[3px] rounded-[3px] border border-border bg-surface p-1"
+            >
+              <span className="h-[3px] w-4/5 rounded-[2px] bg-fg" />
+              <span
+                className={`h-[3px] w-[45%] rounded-[2px] ${
+                  lane === 0 && card === 0 ? 'bg-ai' : 'bg-fg-tertiary'
+                }`}
+              />
+            </span>
+          ))}
+        </div>
+      ))}
+      <div className="flex w-[22px] flex-col gap-1">
+        <span className="h-[9px] rounded-[3px] bg-accent" />
+        <span className="h-[9px] rounded-[3px] border border-border" />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Settings › Appearance: a labelled mode control and a grid of palette cards,
+ * each a live mini board in that palette.
+ */
+export function ThemeGrid(): ReactElement {
+  const { theme, resolvedMode, setTheme } = useTheme();
+  const paletteLabelId = useId();
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-fg-secondary">Mode</span>
+        <SegmentedControl
+          label="Mode"
+          options={MODE_OPTIONS}
+          value={theme.mode}
+          onChange={(mode) => setTheme({ mode })}
+        />
+      </div>
+      <span id={paletteLabelId} className="sr-only">
+        Palette
+      </span>
+      <div
+        role="group"
+        aria-labelledby={paletteLabelId}
+        className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3.5"
+      >
+        {FORGE_PALETTES.map((palette) => {
+          const isSelected = palette.id === theme.palette;
+          return (
+            <button
+              key={palette.id}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => setTheme({ palette: palette.id })}
+              className="group flex cursor-pointer flex-col gap-2 rounded-md text-left"
+            >
+              <PalettePreview palette={palette.id} mode={resolvedMode} isSelected={isSelected} />
+              <span className="flex flex-col gap-px px-0.5">
+                <span className="text-sm font-medium text-fg">{palette.name}</span>
+                <span className="text-2xs text-fg-tertiary">{palette.note}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
