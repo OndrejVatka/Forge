@@ -9,6 +9,7 @@ import { FullScreenLoader } from '../components/Spinner.js';
 import { TicketModal } from '../components/TicketModal.js';
 import { Button } from '../components/ui/Button.js';
 import { Select } from '../components/ui/Select.js';
+import { useHotkey } from '../hooks/useHotkey.js';
 import { useProjects } from '../hooks/useProjects.js';
 import { useRealtime } from '../hooks/useRealtime.js';
 import { useTags } from '../hooks/useTags.js';
@@ -47,6 +48,10 @@ export function Board(): ReactElement {
   const ticketsQuery = useTickets(projectId);
   useRealtime(projectId);
   const updateStatus = useUpdateTicketStatus(projectId);
+
+  // `C` opens the create modal, as the New ticket button's hint says.
+  const hasActiveProject = Boolean(projects?.some((project) => project.id === projectId));
+  useHotkey('c', () => setModalOpen(true), hasActiveProject && !modalOpen);
 
   const filtered = useMemo(() => {
     const tickets = ticketsQuery.data ?? [];
@@ -117,6 +122,7 @@ export function Board(): ReactElement {
         <Button
           icon={Plus}
           label="New ticket"
+          shortcut="C"
           onClick={() => setModalOpen(true)}
           className="ml-auto"
         >

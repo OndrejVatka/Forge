@@ -84,7 +84,7 @@ export function Button({
       {icon && <Icon icon={icon} size={size === 'sm' ? 14 : 16} />}
       {children}
       {shortcut && (
-        <kbd className="-mr-1 ml-0.5 inline-flex h-4 items-center rounded-xs bg-[color-mix(in_oklch,currentColor_14%,transparent)] px-1 font-mono text-[10px] font-medium opacity-85">
+        <kbd className="-mr-1 ml-0.5 inline-flex pointer-coarse:hidden h-4 items-center rounded-xs bg-[color-mix(in_oklch,currentColor_14%,transparent)] px-1 font-mono text-[10px] font-medium opacity-85">
           {shortcut}
         </kbd>
       )}
