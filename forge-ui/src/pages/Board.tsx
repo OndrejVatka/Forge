@@ -89,7 +89,7 @@ export function Board(): ReactElement {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="board-bar flex flex-wrap items-center gap-3 border-b border-border py-3">
+      <div className="board-bar flex flex-wrap items-center gap-2 border-b border-border">
         <Select
           variant="ghost"
           aria-label="Project"
@@ -102,6 +102,8 @@ export function Board(): ReactElement {
             </option>
           ))}
         </Select>
+
+        <span aria-hidden="true" className="h-4 w-px bg-border" />
 
         <FilterBar
           tags={tagsQuery.data ?? []}
@@ -126,12 +128,14 @@ export function Board(): ReactElement {
         <FullScreenLoader />
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="board-scroll flex min-h-0 flex-1 gap-3 overflow-x-auto">
+          <div className="board-scroll flex min-h-0 flex-1 gap-2.5 overflow-x-auto">
             {STATUS_ORDER.map((status) => (
               <Column
                 key={status}
                 status={status}
                 tickets={filtered.filter((ticket) => ticket.status === status)}
+                // New tickets always start in Backlog, so only that lane offers +.
+                onAdd={status === 'backlog' ? () => setModalOpen(true) : undefined}
               />
             ))}
           </div>

@@ -1,32 +1,42 @@
 import type { Priority, TicketStatus } from '@forge/shared';
 
-interface StatusMeta {
-  label: string;
-  /** Hex colour for the column header accent (applied inline). */
-  color: string;
-}
+/*
+ * Status and priority colours are theme tokens (--status-*, --priority-*),
+ * applied by StatusMark and PriorityBadge, so only labels live here.
+ */
 
 /** Left-to-right column order on the board. */
 export const STATUS_ORDER: readonly TicketStatus[] = ['backlog', 'in_dev', 'review', 'done'];
 
-export const STATUS_META: Record<TicketStatus, StatusMeta> = {
-  backlog: { label: 'Backlog', color: '#475569' },
-  in_dev: { label: 'In Dev', color: '#3b82f6' },
-  review: { label: 'Review', color: '#f59e0b' },
-  done: { label: 'Done', color: '#10b981' },
+export const STATUS_META: Record<TicketStatus, { label: string }> = {
+  backlog: { label: 'Backlog' },
+  in_dev: { label: 'In Dev' },
+  review: { label: 'Review' },
+  done: { label: 'Done' },
 };
 
-interface PriorityMeta {
-  label: string;
-  /** Hex colour for the priority dot (applied inline). */
-  color: string;
-}
-
-export const PRIORITY_META: Record<Priority, PriorityMeta> = {
-  low: { label: 'Low', color: '#64748b' },
-  medium: { label: 'Medium', color: '#6366f1' },
-  high: { label: 'High', color: '#ef4444' },
+export const PRIORITY_META: Record<Priority, { label: string }> = {
+  low: { label: 'Low' },
+  medium: { label: 'Medium' },
+  high: { label: 'High' },
 };
 
-/** Creators whose tickets get the ⚡ AI-built indicator. */
+/** Creators whose tickets and comments get the ⚡ agent marker. */
 export const AI_CREATORS = ['claude-code', 'codex', 'hermes'] as const;
+export type AgentName = (typeof AI_CREATORS)[number];
+
+/** Short agent names for the compact board marker (mono, lowercase). */
+export const AGENT_SHORT_NAMES: Record<AgentName, string> = {
+  'claude-code': 'claude',
+  codex: 'codex',
+  hermes: 'hermes',
+};
+
+/**
+ * Whether a created_by / comment author is an AI agent.
+ * @param author - A ticket's created_by or a comment's author.
+ * @returns True for the agents in AI_CREATORS.
+ */
+export function isAgent(author: string): author is AgentName {
+  return (AI_CREATORS as readonly string[]).includes(author);
+}

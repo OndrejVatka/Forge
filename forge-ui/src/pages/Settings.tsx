@@ -1,5 +1,6 @@
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
+import { TagChip } from '../components/TagChip.js';
 import { Button } from '../components/ui/Button.js';
 import { Input } from '../components/ui/Input.js';
 import { useProjects } from '../hooks/useProjects.js';
@@ -178,25 +179,7 @@ export function Settings(): ReactElement {
         <h2 className="mb-3 text-sm font-medium text-muted">Tags</h2>
         <div className="mb-4 flex flex-wrap gap-1.5">
           {(tagsQuery.data ?? []).map((tag) => (
-            <span
-              key={tag.id}
-              className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[11px] font-medium"
-              style={{
-                backgroundColor: `${tag.color}1a`,
-                color: tag.color,
-                borderColor: `${tag.color}33`,
-              }}
-            >
-              {tag.name}
-              <button
-                type="button"
-                onClick={() => deleteTag.mutate(tag.id)}
-                className="opacity-70 hover:opacity-100"
-                aria-label={`Delete tag ${tag.name}`}
-              >
-                <X size={11} />
-              </button>
-            </span>
+            <TagChip key={tag.id} tag={tag} onRemove={() => deleteTag.mutate(tag.id)} />
           ))}
         </div>
 

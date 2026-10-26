@@ -15,7 +15,9 @@ import {
   useTicket,
   useUpdateTicket,
 } from '../hooks/useTicket.js';
-import { AI_CREATORS, PRIORITY_META, STATUS_META } from '../lib/constants.js';
+import { TagChip } from '../components/TagChip.js';
+import { Icon } from '../components/ui/Icon.js';
+import { PRIORITY_META, STATUS_META, isAgent } from '../lib/constants.js';
 
 export function TicketDetail(): ReactElement {
   const { ref } = useParams<{ ref: string }>();
@@ -44,7 +46,7 @@ export function TicketDetail(): ReactElement {
     );
   }
 
-  const isAiCreated = (AI_CREATORS as readonly string[]).includes(ticket.created_by);
+  const isAiCreated = isAgent(ticket.created_by);
   const ticketTagIds = ticket.tags.map((tag) => tag.id);
 
   const saveTitle = (): void => {
@@ -83,7 +85,9 @@ export function TicketDetail(): ReactElement {
       <div className="mb-1 flex items-center gap-2">
         <span className="font-mono text-sm text-muted">{ticket.ticket_ref}</span>
         {isAiCreated && (
-          <Zap size={13} className="text-primary" aria-label={`Created by ${ticket.created_by}`} />
+          <span role="img" aria-label={`Created by ${ticket.created_by}`} className="text-ai">
+            <Icon icon={Zap} size={13} filled />
+          </span>
         )}
       </div>
 
@@ -152,25 +156,14 @@ export function TicketDetail(): ReactElement {
       <div className="mb-5">
         <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-muted">Tags</h3>
         <div className="flex flex-wrap gap-1">
-          {(tagsQuery.data ?? []).map((tag) => {
-            const active = ticketTagIds.includes(tag.id);
-            return (
-              <button
-                key={tag.id}
-                type="button"
-                onClick={() => toggleTag(tag.id)}
-                className="rounded border px-1.5 py-0.5 text-[11px] font-medium"
-                style={{
-                  backgroundColor: active ? `${tag.color}33` : 'transparent',
-                  color: tag.color,
-                  borderColor: `${tag.color}55`,
-                  opacity: active ? 1 : 0.5,
-                }}
-              >
-                {tag.name}
-              </button>
-            );
-          })}
+          {(tagsQuery.data ?? []).map((tag) => (
+            <TagChip
+              key={tag.id}
+              tag={tag}
+              active={ticketTagIds.includes(tag.id)}
+              onClick={() => toggleTag(tag.id)}
+            />
+          ))}
         </div>
       </div>
 
