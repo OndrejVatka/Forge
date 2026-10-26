@@ -31,7 +31,7 @@ Two write paths, one database. Your agent writes through the MCP server; you wri
 - **Human-readable ticket refs** — `PI-42`, `SB-7`, atomically numbered per project
 - **Markdown** descriptions, acceptance criteria, and comments
 - **Multi-project** with tags, priorities, and filtering
-- **Installable PWA** — works offline for reading, with two themes (a clean base skin and an 8-bit "Molten Forge" skin)
+- **Installable PWA** — works offline for reading
 
 ## Prerequisites
 

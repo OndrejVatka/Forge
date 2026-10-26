@@ -1,8 +1,7 @@
 import { Draggable, Droppable } from '@hello-pangea/dnd';
 import type { TicketStatus, TicketWithRelations } from '@forge/shared';
 import type { ReactElement } from 'react';
-import { statusMeta } from '../lib/constants.js';
-import { useTheme } from '../theme/ThemeProvider.js';
+import { STATUS_META } from '../lib/constants.js';
 import { TicketCard } from './TicketCard.js';
 
 interface ColumnProps {
@@ -11,8 +10,7 @@ interface ColumnProps {
 }
 
 export function Column({ status, tickets }: ColumnProps): ReactElement {
-  const { theme } = useTheme();
-  const meta = statusMeta(theme, status);
+  const meta = STATUS_META[status];
 
   return (
     <div
@@ -20,7 +18,7 @@ export function Column({ status, tickets }: ColumnProps): ReactElement {
       className="board-column flex min-w-[260px] flex-1 flex-col rounded-lg border border-border/60 bg-surface/30"
     >
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-        <span className="status-dot h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />
+        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />
         <span className="text-sm font-medium">{meta.label}</span>
         <span className="ml-auto text-xs text-muted">{tickets.length}</span>
       </div>

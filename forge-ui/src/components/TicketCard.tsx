@@ -15,7 +15,7 @@ export function TicketCard({ ticket }: { ticket: TicketWithRelations }): ReactEl
   return (
     <div
       onClick={() => void navigate(`/ticket/${ticket.ticket_ref}`)}
-      className="ticket-card relative cursor-pointer rounded-lg border border-border bg-surface p-3 transition-colors hover:border-primary/50"
+      className="relative cursor-pointer rounded-lg border border-border bg-surface p-3 transition-colors hover:border-primary/50"
     >
       {isAiCreated && (
         <Zap
