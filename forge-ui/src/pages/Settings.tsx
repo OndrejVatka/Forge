@@ -157,7 +157,7 @@ export function Settings(): ReactElement {
               type="button"
               onClick={submitProject}
               disabled={!canSaveProject || createProject.isPending || updateProject.isPending}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-accent-fg hover:bg-primary-hover disabled:opacity-50"
             >
               {form.id ? 'Save changes' : 'Add project'}
             </button>
@@ -218,7 +218,7 @@ export function Settings(): ReactElement {
             type="button"
             onClick={submitTag}
             disabled={!tagName.trim() || createTag.isPending}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-accent-fg hover:bg-primary-hover disabled:opacity-50"
           >
             Add tag
           </button>

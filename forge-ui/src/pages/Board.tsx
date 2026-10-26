@@ -111,7 +111,7 @@ export function Board(): ReactElement {
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="tap-target ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+          className="tap-target ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-accent-fg transition-colors hover:bg-primary-hover"
         >
           <Plus size={16} />
           <span className="hidden sm:inline">New ticket</span>

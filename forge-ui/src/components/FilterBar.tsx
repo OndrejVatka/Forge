@@ -29,7 +29,7 @@ export function FilterBar({
             type="button"
             onClick={() => onPriorityChange(option)}
             className={`tap-target-sm inline-flex items-center justify-center rounded-md px-2.5 py-1 text-xs capitalize transition-colors ${
-              priority === option ? 'bg-primary text-white' : 'text-muted hover:text-text'
+              priority === option ? 'bg-primary text-accent-fg' : 'text-muted hover:text-text'
             }`}
           >
             {option}

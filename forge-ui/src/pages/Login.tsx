@@ -81,7 +81,7 @@ export function Login(): ReactElement {
           <button
             type="submit"
             disabled={submitting || !email.trim() || !password}
-            className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-accent-fg transition-colors hover:bg-primary-hover disabled:opacity-50"
           >
             {submitting ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
           </button>

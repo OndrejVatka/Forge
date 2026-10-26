@@ -1,0 +1,165 @@
+/* Forge color system — 5 palettes × 2 modes.
+   Set BOTH attributes on the same element (normally <html>):
+     <html data-palette="graphite" data-mode="dark">
+   palettes: graphite | ink | slate | navy | mono     modes: dark | light
+   Palettes only set knobs (neutral hue/chroma + accent per mode); the semantic
+   ramp below derives everything else, so components never reference a palette. */
+
+/* ---------- palette knobs ---------- */
+:root,
+[data-palette='graphite'] {
+  --n-h: 260; /* @kind other */
+  --n-c: 0.004; /* @kind other */
+  --acc-d: oklch(0.72 0.185 45);
+  --acc-d-fg: oklch(0.17 0.02 45);
+  --acc-d-text: oklch(0.76 0.16 50);
+  --acc-l: oklch(0.6 0.19 47);
+  --acc-l-fg: oklch(0.99 0 0);
+  --acc-l-text: oklch(0.55 0.18 45);
+  --ai-d: var(--acc-d-text);
+  --ai-l: var(--acc-l-text);
+}
+[data-palette='ink'] {
+  --n-h: 70; /* @kind other */
+  --n-c: 0.009; /* @kind other */
+  --acc-d: oklch(0.79 0.11 82);
+  --acc-d-fg: oklch(0.19 0.02 70);
+  --acc-d-text: oklch(0.8 0.1 82);
+  --acc-l: oklch(0.56 0.1 76);
+  --acc-l-fg: oklch(0.99 0.005 85);
+  --acc-l-text: oklch(0.5 0.09 74);
+  --ai-d: var(--acc-d-text);
+  --ai-l: var(--acc-l-text);
+}
+[data-palette='slate'] {
+  --n-h: 250; /* @kind other */
+  --n-c: 0.016; /* @kind other */
+  --acc-d: oklch(0.89 0.2 126);
+  --acc-d-fg: oklch(0.2 0.04 130);
+  --acc-d-text: oklch(0.88 0.19 126);
+  --acc-l: oklch(0.86 0.2 126);
+  --acc-l-fg: oklch(0.2 0.04 130);
+  --acc-l-text: oklch(0.5 0.13 132);
+  --ai-d: var(--acc-d-text);
+  --ai-l: var(--acc-l-text);
+}
+[data-palette='navy'] {
+  --n-h: 262; /* @kind other */
+  --n-c: 0.034; /* @kind other */
+  --acc-d: oklch(0.74 0.15 30);
+  --acc-d-fg: oklch(0.18 0.03 262);
+  --acc-d-text: oklch(0.76 0.14 30);
+  --acc-l: oklch(0.6 0.17 30);
+  --acc-l-fg: oklch(0.99 0 0);
+  --acc-l-text: oklch(0.55 0.17 30);
+  --ai-d: var(--acc-d-text);
+  --ai-l: var(--acc-l-text);
+}
+[data-palette='mono'] {
+  --n-h: 0; /* @kind other */
+  --n-c: 0; /* @kind other */
+  --acc-d: oklch(0.96 0 0);
+  --acc-d-fg: oklch(0.16 0 0);
+  --acc-d-text: oklch(0.96 0 0);
+  --acc-l: oklch(0.2 0 0);
+  --acc-l-fg: oklch(0.99 0 0);
+  --acc-l-text: oklch(0.2 0 0);
+  --ai-d: oklch(0.72 0.16 255);
+  --ai-l: oklch(0.52 0.2 262);
+}
+
+/* ---------- semantic ramp: dark (default) ---------- */
+:root,
+[data-palette],
+[data-mode] {
+  color-scheme: dark;
+  --bg: oklch(0.155 var(--n-c) var(--n-h));
+  --bg-subtle: oklch(0.178 var(--n-c) var(--n-h));
+  --surface: oklch(0.205 var(--n-c) var(--n-h));
+  --surface-hover: oklch(0.232 var(--n-c) var(--n-h));
+  --surface-raised: oklch(0.222 var(--n-c) var(--n-h));
+  --surface-inset: oklch(0.135 var(--n-c) var(--n-h));
+  --border: oklch(0.27 var(--n-c) var(--n-h));
+  --border-strong: oklch(0.35 var(--n-c) var(--n-h));
+  --text: oklch(0.95 calc(var(--n-c) * 0.5) var(--n-h));
+  --text-secondary: oklch(0.74 calc(var(--n-c) * 0.8) var(--n-h));
+  --text-tertiary: oklch(0.57 var(--n-c) var(--n-h));
+  --accent: var(--acc-d);
+  --accent-fg: var(--acc-d-fg);
+  --accent-text: var(--acc-d-text);
+  --accent-hover: color-mix(in oklch, var(--acc-d) 88%, white);
+  --accent-soft: color-mix(in oklch, var(--acc-d) 14%, transparent);
+  --ai: var(--ai-d);
+  --focus: color-mix(in oklch, var(--acc-d-text) 70%, transparent);
+  --danger: oklch(0.7 0.17 22);
+  --success: oklch(0.74 0.13 158);
+  --warning: oklch(0.8 0.13 85);
+  --status-backlog: var(--text-tertiary);
+  --status-in-dev: oklch(0.72 0.12 245);
+  --status-review: oklch(0.8 0.12 85);
+  --status-done: oklch(0.74 0.13 158);
+  --priority-low: var(--text-tertiary);
+  --priority-medium: var(--text-secondary);
+  --priority-high: var(--danger);
+  --scrim: oklch(0.08 0 0 / 0.62);
+  --shadow-card: none;
+  --shadow-pop: 0 16px 40px -12px oklch(0 0 0 / 0.7), 0 0 0 1px oklch(1 0 0 / 0.03);
+}
+
+/* ---------- semantic ramp: light ---------- */
+[data-mode='light'] {
+  color-scheme: light;
+  --bg: oklch(0.982 calc(var(--n-c) * 0.7) var(--n-h));
+  --bg-subtle: oklch(0.962 var(--n-c) var(--n-h));
+  --surface: oklch(0.998 calc(var(--n-c) * 0.3) var(--n-h));
+  --surface-hover: oklch(0.975 var(--n-c) var(--n-h));
+  --surface-raised: oklch(1 0 0);
+  --surface-inset: oklch(0.97 var(--n-c) var(--n-h));
+  --border: oklch(0.905 var(--n-c) var(--n-h));
+  --border-strong: oklch(0.84 var(--n-c) var(--n-h));
+  --text: oklch(0.2 var(--n-c) var(--n-h));
+  --text-secondary: oklch(0.44 var(--n-c) var(--n-h));
+  --text-tertiary: oklch(0.58 var(--n-c) var(--n-h));
+  --accent: var(--acc-l);
+  --accent-fg: var(--acc-l-fg);
+  --accent-text: var(--acc-l-text);
+  --accent-hover: color-mix(in oklch, var(--acc-l) 88%, black);
+  --accent-soft: color-mix(in oklch, var(--acc-l) 12%, transparent);
+  --ai: var(--ai-l);
+  --focus: color-mix(in oklch, var(--acc-l-text) 55%, transparent);
+  --danger: oklch(0.56 0.19 25);
+  --success: oklch(0.56 0.13 158);
+  --warning: oklch(0.64 0.14 72);
+  --status-in-dev: oklch(0.56 0.15 252);
+  --status-review: oklch(0.68 0.14 72);
+  --status-done: oklch(0.58 0.13 158);
+  --scrim: oklch(0.2 0.01 var(--n-h) / 0.32);
+  --shadow-card: 0 1px 0 oklch(0.2 0.01 var(--n-h) / 0.04);
+  --shadow-pop:
+    0 1px 2px oklch(0.2 0.01 var(--n-h) / 0.06), 0 16px 36px -10px oklch(0.2 0.02 var(--n-h) / 0.2);
+}
+
+/* mono keeps one data accent; statuses lean on luminance */
+[data-palette='mono'] {
+  --status-in-dev: var(--ai);
+  --status-review: var(--text-secondary);
+  --status-done: var(--text);
+}
+
+/* ---------- legacy aliases (v1 names → v2). Remove once the codebase is migrated. ---------- */
+:root,
+[data-palette],
+[data-mode] {
+  --surface-bg: var(--bg);
+  --surface-card: var(--surface);
+  --surface-card-hover: var(--surface-hover);
+  --border-default: var(--border);
+  --border-focus: var(--accent-text);
+  --text-body: var(--text);
+  --text-muted: var(--text-tertiary);
+  --text-on-primary: var(--accent-fg);
+  --action-primary: var(--accent);
+  --action-primary-hover: var(--accent-hover);
+  --feedback-error: var(--danger);
+  --feedback-success: var(--success);
+}

@@ -141,7 +141,7 @@ export function TicketModal({ project, tags, onClose }: TicketModalProps): React
           <button
             type="submit"
             disabled={!title.trim() || createTicket.isPending}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-accent-fg transition-colors hover:bg-primary-hover disabled:opacity-50"
           >
             {createTicket.isPending ? 'Creating…' : 'Create ticket'}
           </button>

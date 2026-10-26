@@ -209,7 +209,7 @@ export function TicketDetail(): ReactElement {
               type="button"
               onClick={submitComment}
               disabled={!commentDraft.trim() || addComment.isPending}
-              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-accent-fg hover:bg-primary-hover disabled:opacity-50"
             >
               {addComment.isPending ? 'Posting…' : 'Comment'}
             </button>

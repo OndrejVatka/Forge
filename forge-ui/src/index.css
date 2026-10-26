@@ -1,23 +1,77 @@
 @import 'tailwindcss';
+/* Forge v2 tokens, copied from the design handoff (FO-24). Fonts load from index.html. */
+@import './styles/forge/colors.css';
+@import './styles/forge/typography.css';
+@import './styles/forge/spacing.css';
+@import './styles/forge/base.css';
 
 /*
- * Forge design tokens (from the developer brief). Dark-mode first, minimal.
- * Tailwind v4 generates utilities from these (e.g. `bg-surface`, `text-muted`,
- * `border-border`, `font-mono`). Status/priority colours are applied inline
- * from data, so they live in src/lib/constants.ts rather than here.
+ * Semantic tokens → Tailwind utilities. `inline` makes utilities emit var(--x)
+ * directly, so they re-resolve when data-palette / data-mode change on <html>.
+ * Components use only these; never the palette knobs (--acc-*, --n-h, --n-c).
  */
-@theme {
-  --color-bg: #0f1117;
-  --color-surface: #1a1d27;
-  --color-surface-hover: #20242f;
-  --color-border: #2a2d3a;
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f52d6;
-  --color-text: #e2e8f0;
-  --color-muted: #64748b;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-inset: var(--surface-inset);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--text);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-tertiary: var(--text-tertiary);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-ai: var(--ai);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-status-backlog: var(--status-backlog);
+  --color-status-in-dev: var(--status-in-dev);
+  --color-status-review: var(--status-review);
+  --color-status-done: var(--status-done);
+  --color-priority-low: var(--priority-low);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-high: var(--priority-high);
+  --color-scrim: var(--scrim);
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+}
+
+/*
+ * TEMPORARY v1 → v2 bridge: v1 utility names with no v2 equivalent, so
+ * unmigrated markup re-skins with the palette. bg / surface / surface-hover /
+ * border share names with v2 and need no alias. (The handoff's bridge used
+ * `forge-*` names, which this codebase never had.) Delete once
+ * `grep -rnE "(bg|text|border)-(primary|text|muted)" src/` is clean.
+ */
+@theme inline {
+  --color-primary: var(--accent);
+  --color-primary-hover: var(--accent-hover);
+  --color-text: var(--text);
+  --color-muted: var(--text-tertiary);
 }
 
 html,
@@ -28,10 +82,6 @@ body,
 
 body {
   margin: 0;
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
 }
 
 /*
@@ -86,7 +136,7 @@ body {
 /* Subtle scrollbars that fit the dark surface. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
 /* Minimal markdown styling (Tailwind preflight strips defaults). */
@@ -134,20 +184,20 @@ body {
   list-style: decimal;
 }
 .markdown a {
-  color: var(--color-primary);
+  color: var(--accent-text);
   text-decoration: underline;
 }
 .markdown code {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 0.1em 0.35em;
 }
 .markdown pre {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.75rem;
   overflow-x: auto;
