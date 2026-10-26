@@ -121,21 +121,28 @@ export function resolveMode(mode: ForgeMode): ResolvedMode {
  * element (the token CSS keys off both) and the matching theme-color meta.
  * @param theme - The choice to apply.
  * @param root - The element to theme; defaults to <html>.
+ * @returns The concrete mode that was rendered.
  */
 export function applyTheme(
   theme: ForgeThemeChoice,
   root: HTMLElement = document.documentElement,
-): void {
+): ResolvedMode {
   const mode = resolveMode(theme.mode);
   root.dataset.palette = theme.palette;
   root.dataset.mode = mode;
   document
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute('content', THEME_COLORS[theme.palette][mode]);
+  return mode;
 }
 
 export interface ForgeThemeState {
   theme: ForgeThemeChoice;
+  /**
+   * The mode actually rendered: `system` resolved, and kept current as the OS
+   * changes. Previews that scope their own data-mode (theme swatches) need it.
+   */
+  resolvedMode: ResolvedMode;
   /** Merges a partial change (palette and/or mode), then applies and stores it. */
   setTheme: (patch: Partial<ForgeThemeChoice>) => void;
 }
@@ -147,6 +154,7 @@ export interface ForgeThemeState {
  */
 export function useForgeTheme(): ForgeThemeState {
   const [theme, setThemeState] = useState<ForgeThemeChoice>(loadTheme);
+  const [resolvedMode, setResolvedMode] = useState<ResolvedMode>(() => resolveMode(theme.mode));
 
   useEffect(() => {
     try {
@@ -157,7 +165,7 @@ export function useForgeTheme(): ForgeThemeState {
   }, []);
 
   useEffect(() => {
-    applyTheme(theme);
+    setResolvedMode(applyTheme(theme));
     saveTheme(theme);
   }, [theme]);
 
@@ -165,7 +173,7 @@ export function useForgeTheme(): ForgeThemeState {
   useEffect(() => {
     if (theme.mode !== 'system') return;
     const query = window.matchMedia(PREFERS_LIGHT);
-    const handleChange = (): void => applyTheme(theme);
+    const handleChange = (): void => setResolvedMode(applyTheme(theme));
     query.addEventListener('change', handleChange);
     return () => query.removeEventListener('change', handleChange);
   }, [theme]);
@@ -175,5 +183,5 @@ export function useForgeTheme(): ForgeThemeState {
     [],
   );
 
-  return { theme, setTheme };
+  return { theme, resolvedMode, setTheme };
 }

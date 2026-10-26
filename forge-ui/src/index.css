@@ -92,16 +92,19 @@ body {
  * it. On non-notch devices env(safe-area-inset-*) resolves to 0 (no change).
  */
 .app-header {
-  padding-top: calc(0.75rem + env(safe-area-inset-top));
-  padding-bottom: 0.75rem;
-  padding-left: calc(1rem + env(safe-area-inset-left));
-  padding-right: calc(1rem + env(safe-area-inset-right));
+  min-height: calc(var(--header-h) + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  padding-left: calc(var(--space-3) + env(safe-area-inset-left));
+  padding-right: calc(var(--space-3) + env(safe-area-inset-right));
 }
 
-/* Board filter bar: clear the landscape notch on the sides. */
+/* Board toolbar (40px; wraps taller on narrow screens): clear the landscape notch. */
 .board-bar {
-  padding-left: calc(1rem + env(safe-area-inset-left));
-  padding-right: calc(1rem + env(safe-area-inset-right));
+  min-height: var(--toolbar-h);
+  padding-top: var(--space-1-5);
+  padding-bottom: var(--space-1-5);
+  padding-left: calc(var(--space-3) + env(safe-area-inset-left));
+  padding-right: calc(var(--space-3) + env(safe-area-inset-right));
 }
 
 /*
@@ -110,10 +113,10 @@ body {
  * width (no overflow), so scroll-snap is inert there.
  */
 .board-scroll {
-  padding-top: 1rem;
-  padding-left: calc(1rem + env(safe-area-inset-left));
-  padding-right: calc(1rem + env(safe-area-inset-right));
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  padding-top: var(--space-3);
+  padding-left: calc(var(--space-3) + env(safe-area-inset-left));
+  padding-right: calc(var(--space-3) + env(safe-area-inset-right));
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
   scroll-snap-type: x proximity;
 }
 .board-column {

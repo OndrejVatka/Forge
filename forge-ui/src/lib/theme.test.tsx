@@ -143,12 +143,14 @@ describe('useForgeTheme', () => {
     it('should follow OS colour-scheme changes live', () => {
       const os = stubColorScheme(false);
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ palette: 'graphite', mode: 'system' }));
-      renderHook(() => useForgeTheme());
+      const { result } = renderHook(() => useForgeTheme());
       expect(root.dataset.mode).toBe('dark');
+      expect(result.current.resolvedMode).toBe('dark');
 
       act(() => os.setPrefersLight(true));
 
       expect(root.dataset.mode).toBe('light');
+      expect(result.current.resolvedMode).toBe('light');
       expect(themeColor()).toBe('#f8f9fb');
       // The stored choice stays `system`; only the rendered mode changes.
       expect(stored()).toEqual({ palette: 'graphite', mode: 'system' });
@@ -202,7 +204,7 @@ describe('useTheme', () => {
   });
 
   it('should return the provided theme state', () => {
-    const value = { theme: DEFAULT_THEME, setTheme: vi.fn() };
+    const value = { theme: DEFAULT_THEME, resolvedMode: 'dark' as const, setTheme: vi.fn() };
     const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
       <ForgeThemeContext.Provider value={value}>{children}</ForgeThemeContext.Provider>
     );
