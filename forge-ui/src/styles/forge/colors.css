@@ -102,7 +102,10 @@
   --priority-medium: var(--text-secondary);
   --priority-high: var(--danger);
   --scrim: oklch(0.08 0 0 / 0.62);
-  --shadow-card: none;
+  /* Forge change vs. the handoff (`none`): Tailwind composes shadow-card with
+     ring utilities into one box-shadow list, where `none` invalidates the whole
+     declaration and drops the focus ring. A transparent zero shadow is the no-op. */
+  --shadow-card: 0 0 #0000;
   --shadow-pop: 0 16px 40px -12px oklch(0 0 0 / 0.7), 0 0 0 1px oklch(1 0 0 / 0.03);
 }
 

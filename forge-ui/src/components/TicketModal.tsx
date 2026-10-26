@@ -2,6 +2,11 @@ import { PRIORITIES, type Priority, type Project, type Tag } from '@forge/shared
 import { X } from 'lucide-react';
 import { useState, type FormEvent, type ReactElement } from 'react';
 import { useCreateTicket } from '../hooks/useTickets.js';
+import { PRIORITY_META } from '../lib/constants.js';
+import { Button } from './ui/Button.js';
+import { Input } from './ui/Input.js';
+import { Select } from './ui/Select.js';
+import { Textarea } from './ui/Textarea.js';
 
 interface TicketModalProps {
   project: Pick<Project, 'id' | 'prefix' | 'name'>;
@@ -53,49 +58,59 @@ export function TicketModal({ project, tags, onClose }: TicketModalProps): React
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-semibold">New ticket in {project.name}</h2>
-          <button type="button" onClick={onClose} className="text-muted hover:text-text">
-            <X size={18} />
-          </button>
+          <Button variant="ghost" size="sm" icon={X} label="Close" onClick={onClose} />
         </div>
 
-        <label className="mb-1 text-xs text-muted">Title</label>
-        <input
+        <label htmlFor="new-ticket-title" className="mb-1 text-xs text-muted">
+          Title
+        </label>
+        <Input
+          id="new-ticket-title"
           autoFocus
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           placeholder="What needs doing?"
-          className="mb-3 rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
+          className="mb-3"
         />
 
-        <label className="mb-1 text-xs text-muted">Description (markdown)</label>
-        <textarea
+        <label htmlFor="new-ticket-description" className="mb-1 text-xs text-muted">
+          Description (markdown)
+        </label>
+        <Textarea
+          id="new-ticket-description"
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           rows={3}
-          className="mb-3 resize-y rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
+          className="mb-3"
         />
 
-        <label className="mb-1 text-xs text-muted">Acceptance criteria (markdown)</label>
-        <textarea
+        <label htmlFor="new-ticket-criteria" className="mb-1 text-xs text-muted">
+          Acceptance criteria (markdown)
+        </label>
+        <Textarea
+          id="new-ticket-criteria"
           value={acceptanceCriteria}
           onChange={(event) => setAcceptanceCriteria(event.target.value)}
           rows={2}
           placeholder="What does done look like?"
-          className="mb-3 resize-y rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
+          className="mb-3"
         />
 
-        <label className="mb-1 text-xs text-muted">Priority</label>
-        <select
+        <label htmlFor="new-ticket-priority" className="mb-1 text-xs text-muted">
+          Priority
+        </label>
+        <Select
+          id="new-ticket-priority"
           value={priority}
           onChange={(event) => setPriority(event.target.value as Priority)}
-          className="mb-3 rounded-lg border border-border bg-bg px-3 py-2 text-sm capitalize outline-none focus:border-primary"
+          className="mb-3 self-start"
         >
           {PRIORITIES.map((option) => (
             <option key={option} value={option}>
-              {option}
+              {PRIORITY_META[option].label}
             </option>
           ))}
-        </select>
+        </Select>
 
         {tags.length > 0 && (
           <>
@@ -131,20 +146,12 @@ export function TicketModal({ project, tags, onClose }: TicketModalProps): React
         )}
 
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg px-3 py-2 text-sm text-muted hover:text-text"
-          >
+          <Button variant="ghost" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={!title.trim() || createTicket.isPending}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-accent-fg transition-colors hover:bg-primary-hover disabled:opacity-50"
-          >
+          </Button>
+          <Button type="submit" disabled={!title.trim() || createTicket.isPending}>
             {createTicket.isPending ? 'Creating…' : 'Create ticket'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

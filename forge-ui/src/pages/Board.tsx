@@ -7,6 +7,8 @@ import { Column } from '../components/Column.js';
 import { FilterBar, type PriorityFilter } from '../components/FilterBar.js';
 import { FullScreenLoader } from '../components/Spinner.js';
 import { TicketModal } from '../components/TicketModal.js';
+import { Button } from '../components/ui/Button.js';
+import { Select } from '../components/ui/Select.js';
 import { useProjects } from '../hooks/useProjects.js';
 import { useRealtime } from '../hooks/useRealtime.js';
 import { useTags } from '../hooks/useTags.js';
@@ -88,17 +90,18 @@ export function Board(): ReactElement {
   return (
     <div className="flex h-full flex-col">
       <div className="board-bar flex flex-wrap items-center gap-3 border-b border-border py-3">
-        <select
+        <Select
+          variant="ghost"
+          aria-label="Project"
           value={projectId ?? ''}
           onChange={(event) => setProjectId(event.target.value)}
-          className="tap-target rounded-lg border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-primary"
         >
           {projects.map((project) => (
             <option key={project.id} value={project.id}>
               {project.name}
             </option>
           ))}
-        </select>
+        </Select>
 
         <FilterBar
           tags={tagsQuery.data ?? []}
@@ -108,14 +111,15 @@ export function Board(): ReactElement {
           onToggleTag={toggleTag}
         />
 
-        <button
-          type="button"
+        {/* The label hides on narrow screens, so `label` carries the accessible name. */}
+        <Button
+          icon={Plus}
+          label="New ticket"
           onClick={() => setModalOpen(true)}
-          className="tap-target ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-accent-fg transition-colors hover:bg-primary-hover"
+          className="ml-auto"
         >
-          <Plus size={16} />
           <span className="hidden sm:inline">New ticket</span>
-        </button>
+        </Button>
       </div>
 
       {ticketsQuery.isLoading ? (

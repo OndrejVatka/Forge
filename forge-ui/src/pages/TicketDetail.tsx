@@ -5,6 +5,9 @@ import { Link, useParams } from 'react-router-dom';
 import { ActivityLog } from '../components/ActivityLog.js';
 import { MarkdownField } from '../components/MarkdownField.js';
 import { FullScreenLoader } from '../components/Spinner.js';
+import { Button } from '../components/ui/Button.js';
+import { Select } from '../components/ui/Select.js';
+import { Textarea } from '../components/ui/Textarea.js';
 import { useTags } from '../hooks/useTags.js';
 import {
   useAddComment,
@@ -12,7 +15,7 @@ import {
   useTicket,
   useUpdateTicket,
 } from '../hooks/useTicket.js';
-import { AI_CREATORS, STATUS_META } from '../lib/constants.js';
+import { AI_CREATORS, PRIORITY_META, STATUS_META } from '../lib/constants.js';
 
 export function TicketDetail(): ReactElement {
   const { ref } = useParams<{ ref: string }>();
@@ -112,24 +115,23 @@ export function TicketDetail(): ReactElement {
       <div className="mb-5 flex flex-wrap gap-4">
         <label className="flex flex-col gap-1 text-xs text-muted">
           Status
-          <select
+          <Select
             value={ticket.status}
             onChange={(event) =>
               setStatus.mutate({ ticketId: ticket.id, status: event.target.value as TicketStatus })
             }
-            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-text outline-none focus:border-primary"
           >
             {TICKET_STATUSES.map((status) => (
               <option key={status} value={status}>
                 {STATUS_META[status].label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
 
         <label className="flex flex-col gap-1 text-xs text-muted">
           Priority
-          <select
+          <Select
             value={ticket.priority}
             onChange={(event) =>
               updateTicket.mutate({
@@ -137,14 +139,13 @@ export function TicketDetail(): ReactElement {
                 fields: { priority: event.target.value as Priority },
               })
             }
-            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm capitalize text-text outline-none focus:border-primary"
           >
             {PRIORITIES.map((priority) => (
               <option key={priority} value={priority}>
-                {priority}
+                {PRIORITY_META[priority].label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
       </div>
 
@@ -197,22 +198,22 @@ export function TicketDetail(): ReactElement {
         <ActivityLog comments={ticket.comments ?? []} />
 
         <div className="mt-3">
-          <textarea
+          <Textarea
+            aria-label="Comment"
             value={commentDraft}
             onChange={(event) => setCommentDraft(event.target.value)}
             rows={2}
             placeholder="Add a comment…"
-            className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
           />
           <div className="mt-2 flex justify-end">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={submitComment}
               disabled={!commentDraft.trim() || addComment.isPending}
-              className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-accent-fg hover:bg-primary-hover disabled:opacity-50"
             >
               {addComment.isPending ? 'Posting…' : 'Comment'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

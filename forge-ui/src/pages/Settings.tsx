@@ -1,5 +1,7 @@
-import { X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
+import { Button } from '../components/ui/Button.js';
+import { Input } from '../components/ui/Input.js';
 import { useProjects } from '../hooks/useProjects.js';
 import {
   useCreateProject,
@@ -88,8 +90,10 @@ export function Settings(): ReactElement {
               <span className="h-3 w-3 rounded-full" style={{ backgroundColor: project.color }} />
               <span className="text-sm">{project.name}</span>
               <span className="font-mono text-xs text-muted">{project.prefix}</span>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-auto"
                 onClick={() =>
                   setForm({
                     id: project.id,
@@ -100,10 +104,9 @@ export function Settings(): ReactElement {
                     description: project.description ?? '',
                   })
                 }
-                className="ml-auto text-xs text-muted hover:text-text"
               >
                 Edit
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
@@ -113,23 +116,23 @@ export function Settings(): ReactElement {
             {form.id ? 'Edit project' : 'New project'}
           </h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input
+            <Input
               value={form.name}
               onChange={(event) => setForm({ ...form, name: event.target.value })}
               placeholder="Name"
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
             />
-            <input
+            <Input
+              mono
               value={form.slug}
               onChange={(event) => setForm({ ...form, slug: event.target.value })}
               placeholder="Slug (e.g. proofindex)"
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
             />
-            <input
+            <Input
+              mono
               value={form.prefix}
               onChange={(event) => setForm({ ...form, prefix: event.target.value })}
               placeholder="Prefix (e.g. PI)"
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm uppercase outline-none focus:border-primary"
+              className="uppercase"
             />
             <div className="flex items-center gap-2">
               <input
@@ -141,11 +144,11 @@ export function Settings(): ReactElement {
               <span className="font-mono text-xs text-muted">{form.color}</span>
             </div>
           </div>
-          <input
+          <Input
             value={form.description}
             onChange={(event) => setForm({ ...form, description: event.target.value })}
             placeholder="Description (optional)"
-            className="mt-3 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
+            className="mt-3"
           />
           {(createProject.isError || updateProject.isError) && (
             <p className="mt-2 text-xs text-red-400">
@@ -153,22 +156,18 @@ export function Settings(): ReactElement {
             </p>
           )}
           <div className="mt-3 flex gap-2">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              icon={form.id ? undefined : Plus}
               onClick={submitProject}
               disabled={!canSaveProject || createProject.isPending || updateProject.isPending}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-accent-fg hover:bg-primary-hover disabled:opacity-50"
             >
               {form.id ? 'Save changes' : 'Add project'}
-            </button>
+            </Button>
             {form.id && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="rounded-lg px-3 py-2 text-sm text-muted hover:text-text"
-              >
+              <Button variant="ghost" onClick={resetForm}>
                 Cancel
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -202,11 +201,11 @@ export function Settings(): ReactElement {
         </div>
 
         <div className="flex items-center gap-2">
-          <input
+          <Input
             value={tagName}
             onChange={(event) => setTagName(event.target.value)}
             placeholder="New tag name"
-            className="rounded-lg border border-border bg-bg px-3 py-2 text-sm outline-none focus:border-primary"
+            className="max-w-60"
           />
           <input
             type="color"
@@ -214,14 +213,14 @@ export function Settings(): ReactElement {
             onChange={(event) => setTagColor(event.target.value)}
             className="h-9 w-12 cursor-pointer rounded border border-border bg-bg"
           />
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            icon={Plus}
             onClick={submitTag}
             disabled={!tagName.trim() || createTag.isPending}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-accent-fg hover:bg-primary-hover disabled:opacity-50"
           >
             Add tag
-          </button>
+          </Button>
         </div>
       </section>
     </div>

@@ -3,6 +3,8 @@ import { useState, type FormEvent, type ReactElement } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider.js';
 import { FullScreenLoader } from '../components/Spinner.js';
+import { Button } from '../components/ui/Button.js';
+import { Input } from '../components/ui/Input.js';
 
 type Mode = 'signin' | 'signup';
 
@@ -55,36 +57,37 @@ export function Login(): ReactElement {
         <p className="mt-1 text-center text-sm text-muted">AI-native project management</p>
 
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
-          <input
+          <Input
             type="email"
+            size="lg"
             autoComplete="email"
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            className="rounded-lg border border-border bg-bg px-3 py-2.5 text-sm outline-none focus:border-primary"
           />
-          <input
+          <Input
             type="password"
+            size="lg"
             autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
             required
             minLength={6}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="Password"
-            className="rounded-lg border border-border bg-bg px-3 py-2.5 text-sm outline-none focus:border-primary"
           />
 
           {error && <p className="text-xs text-red-400">{error}</p>}
           {notice && <p className="text-xs text-emerald-400">{notice}</p>}
 
-          <button
+          <Button
             type="submit"
+            size="lg"
+            fullWidth
             disabled={submitting || !email.trim() || !password}
-            className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-accent-fg transition-colors hover:bg-primary-hover disabled:opacity-50"
           >
             {submitting ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
-          </button>
+          </Button>
         </form>
 
         <button

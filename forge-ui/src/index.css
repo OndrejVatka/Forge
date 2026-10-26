@@ -3,7 +3,8 @@
 @import './styles/forge/colors.css';
 @import './styles/forge/typography.css';
 @import './styles/forge/spacing.css';
-@import './styles/forge/base.css';
+/* In the base layer so utilities (e.g. outline-hidden on fields) can override it. */
+@import './styles/forge/base.css' layer(base);
 
 /*
  * Semantic tokens → Tailwind utilities. `inline` makes utilities emit var(--x)
@@ -123,6 +124,7 @@ body {
  * Comfortable touch targets on coarse pointers (touch) without inflating the
  * dense desktop layout — fine-pointer (mouse) devices keep the compact sizing.
  * 2.75rem ≈ the 44px iOS minimum; the -sm variant suits grouped chip filters.
+ * -square keeps icon-only buttons square as they grow.
  */
 @media (pointer: coarse) {
   .tap-target {
@@ -130,6 +132,9 @@ body {
   }
   .tap-target-sm {
     min-height: 2.25rem;
+  }
+  .tap-target-square {
+    min-width: 2.75rem;
   }
 }
 
