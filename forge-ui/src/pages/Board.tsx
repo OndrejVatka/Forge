@@ -7,7 +7,7 @@ import { Column } from '../components/Column.js';
 import { FilterBar, type PriorityFilter } from '../components/FilterBar.js';
 import { FullScreenLoader } from '../components/Spinner.js';
 import { TicketModal } from '../components/TicketModal.js';
-import { Button } from '../components/ui/Button.js';
+import { Button, buttonClassName } from '../components/ui/Button.js';
 import { Select } from '../components/ui/Select.js';
 import { useHotkey } from '../hooks/useHotkey.js';
 import { useProjects } from '../hooks/useProjects.js';
@@ -81,10 +81,10 @@ export function Board(): ReactElement {
 
   if (!projects || projects.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted">
-        <p>No projects yet.</p>
-        <Link to="/settings" className="text-primary hover:underline">
-          Create your first project in Settings
+      <div className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center">
+        <p className="text-sm text-fg-secondary">No projects yet.</p>
+        <Link to="/settings" className={buttonClassName({ variant: 'secondary' })}>
+          Create a project in Settings
         </Link>
       </div>
     );
@@ -94,7 +94,7 @@ export function Board(): ReactElement {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="app-toolbar flex flex-wrap items-center gap-2 border-b border-border">
+      <div className="app-toolbar flex flex-wrap items-center gap-2.5 border-b border-border">
         <Select
           variant="ghost"
           aria-label="Project"
