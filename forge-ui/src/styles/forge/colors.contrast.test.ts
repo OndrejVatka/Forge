@@ -32,11 +32,13 @@ const blocks = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].map(([, selector = '', 
         const colon = line.indexOf(':');
         return [line.slice(0, colon).trim(), line.slice(colon + 1).trim()];
       }),
-  ) as Declarations,
+  ),
 }));
 
 const merge = (predicate: (selector: string) => boolean): Declarations =>
-  Object.assign({}, ...blocks.filter((b) => predicate(b.selector)).map((b) => b.declarations));
+  blocks
+    .filter((block) => predicate(block.selector))
+    .reduce<Declarations>((merged, block) => ({ ...merged, ...block.declarations }), {});
 
 const PALETTES = ['graphite', 'ink', 'slate', 'navy', 'mono'] as const;
 const MODES = ['dark', 'light'] as const;
@@ -132,7 +134,7 @@ describe('v2 colour tokens', () => {
 
   it('should catch a regression (sanity check on the resolver)', () => {
     // The handoff's original light tertiary (L 0.58) failed on bg-subtle.
-    const declarations = {
+    const declarations: Declarations = {
       ...scope('navy', 'light'),
       '--text-tertiary': 'oklch(0.58 var(--n-c) var(--n-h))',
     };
