@@ -3,15 +3,21 @@
  * Run: `node forge-ui/scripts/generate-icons.mjs` from the repo root.
  * Outputs forge-ui/public/favicon.svg and forge-ui/public/icons/*.png.
  *
- * Geometry and colours are from the v2 design handoff (FO-24): a Graphite
- * orange tile with a dark anvil glyph. Static files can't follow the in-app
- * palette, so they ship in the default Graphite.
+ * An orange anvil on a dark tile. The v2 handoff's dark glyph on an orange
+ * tile vanished under iOS's Dark home-screen appearance, which swaps the
+ * background for its own dark gradient and keeps the foreground. So the glyph
+ * has to be the light/colour part. Static files can't follow the in-app
+ * palette, so they use Graphite's orange.
+ *
+ * App icons are square, opaque and full-bleed with no alpha channel: iOS and
+ * Android launchers apply their own mask, and iOS fills transparent pixels
+ * with black. Only the SVG favicon keeps rounded corners (tabs show it as-is).
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
-const TILE = '#f2782e';
-const GLYPH = '#1c130d';
+const TILE = '#17171a';
+const GLYPH = '#f2782e';
 // Anvil and strike lines on a 100×100 grid (same paths as ForgeMark.tsx).
 const ANVIL =
   'M6 44C18 44 26 40 30 40h62v14H76c-7 0-10 5-10 12v4h12v12H22V70h12v-4c0-7-3-11-10-12C15 53 9 50 6 44z';
@@ -19,8 +25,8 @@ const STRIKES = 'M60 30V16M46 32l-7-11M74 32l7-11';
 
 /**
  * @param {{ rounded: boolean, strikes: boolean }} options
- *   rounded: 22.5% corners (app icons); square for maskable/iOS, which mask themselves.
- *   strikes: the full mark; dropped for small sizes (favicon), where they blur.
+ *   rounded: 22.5% corners, for the favicon only.
+ *   strikes: the full mark; dropped for the favicon, where they blur.
  */
 function svg({ rounded, strikes }) {
   const rx = rounded ? 22.5 : 0;
@@ -35,6 +41,7 @@ function svg({ rounded, strikes }) {
 async function render(svgString, out, size) {
   await sharp(Buffer.from(svgString), { density: 72 * (size / 100) })
     .resize(size, size)
+    .removeAlpha()
     .png()
     .toFile(out);
   console.log('wrote', out);
@@ -44,7 +51,8 @@ const dir = 'forge-ui/public/icons';
 await mkdir(dir, { recursive: true });
 await writeFile('forge-ui/public/favicon.svg', `${svg({ rounded: true, strikes: false })}\n`);
 console.log('wrote forge-ui/public/favicon.svg');
-await render(svg({ rounded: true, strikes: true }), `${dir}/icon-192.png`, 192);
-await render(svg({ rounded: true, strikes: true }), `${dir}/icon-512.png`, 512);
-await render(svg({ rounded: false, strikes: true }), `${dir}/maskable-512.png`, 512);
-await render(svg({ rounded: false, strikes: true }), `${dir}/apple-touch-icon.png`, 180);
+const appIcon = svg({ rounded: false, strikes: true });
+await render(appIcon, `${dir}/icon-192.png`, 192);
+await render(appIcon, `${dir}/icon-512.png`, 512);
+await render(appIcon, `${dir}/maskable-512.png`, 512);
+await render(appIcon, `${dir}/apple-touch-icon.png`, 180);
