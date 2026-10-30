@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview", "--workspace", "@forge/ui"],
       "port": 4173
+    },
+    {
+      "name": "forge-mcp",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--workspace", "@forge/mcp"],
+      "port": 3000
     }
   ]
 }

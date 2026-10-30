@@ -17,9 +17,11 @@ The Forge MCP server — a stateless **Streamable HTTP** MCP server (Node + Expr
 ## Local development
 
 ```bash
-cp .env.example .env     # fill in SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, FORGE_API_KEY
+cp .env.example .env     # fill in SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, FORGE_API_KEY_<AGENT>
 npm run dev              # tsx watch, from repo root or this package
 ```
+
+Give each agent its own local key (`FORGE_API_KEY_CLAUDE_CODE`, `_CODEX`, `_HERMES`) so writes made against localhost are attributed the same way as in production. Local keys must differ from the Railway ones. `tsx watch` doesn't reload on `.env` edits, since dotenv reads it once at boot, so restart the server after changing a key.
 
 Server endpoints:
 - `GET /health` — unauthenticated health check (used by Railway)
@@ -34,7 +36,7 @@ curl -s localhost:3000/health
 curl -s -X POST localhost:3000/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
-  -H "Authorization: Bearer $FORGE_API_KEY" \
+  -H "Authorization: Bearer $FORGE_API_KEY_CLAUDE_CODE" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ```
 
