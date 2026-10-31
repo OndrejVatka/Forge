@@ -4,7 +4,43 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { SUPABASE_REST_CACHE } from './src/lib/offline-cache.js';
 
+/**
+ * Vendor groups split out of the entry chunk. Everything here is needed at
+ * boot (auth runs before the first route), so splitting doesn't shrink the
+ * first load. It keeps every chunk under Rollup's 500 kB warning, and an
+ * app-only deploy invalidates just the small entry instead of the vendors the
+ * PWA has already cached.
+ */
+const VENDOR_CHUNKS: ReadonlyArray<readonly [name: string, pattern: RegExp]> = [
+  ['supabase', /\/node_modules\/(@supabase|iceberg-js)\//],
+  ['react', /\/node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//],
+  ['zod', /\/node_modules\/zod\//],
+  ['query', /\/node_modules\/@tanstack\//],
+];
+
+/**
+ * zod 4 ships `@__PURE__` comments in positions Rollup can't interpret, and
+ * Rollup warns once per file. The cause is upstream, not in Forge, so only
+ * that warning from those exact files is dropped. Anything else still prints.
+ */
+const ZOD_ANNOTATION_FILE = /\/node_modules\/zod\/v4\/core\/(regexes|util)\.js$/;
+
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      onwarn(warning, defaultHandler) {
+        if (warning.code === 'INVALID_ANNOTATION' && ZOD_ANNOTATION_FILE.test(warning.id ?? '')) {
+          return;
+        }
+        defaultHandler(warning);
+      },
+      output: {
+        manualChunks(id) {
+          return VENDOR_CHUNKS.find(([, pattern]) => pattern.test(id))?.[0];
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
