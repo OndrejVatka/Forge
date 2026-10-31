@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { z } from 'zod';
 
 /*
  * Forge v2 theme runtime (FO-24). public/theme-boot.js applies the stored
@@ -53,16 +52,10 @@ export const THEME_COLORS: Record<ForgePalette, Record<ResolvedMode, string>> = 
   mono: { dark: '#0c0c0c', light: '#f9f9f9' },
 };
 
-/*
- * localStorage is user-editable, so each field is validated on its own: a bad
- * mode doesn't throw away a good palette. Mirrors the boot script.
- */
-const storedThemeSchema = z
-  .object({
-    palette: z.enum(PALETTES).catch(DEFAULT_THEME.palette),
-    mode: z.enum(MODES).catch(DEFAULT_THEME.mode),
-  })
-  .catch(DEFAULT_THEME);
+/** Narrows an untrusted value to one of a fixed set of strings. */
+function isOneOf<T extends string>(options: readonly T[], value: unknown): value is T {
+  return (options as readonly unknown[]).includes(value);
+}
 
 const PREFERS_LIGHT = '(prefers-color-scheme: light)';
 
@@ -74,11 +67,22 @@ const PREFERS_LIGHT = '(prefers-color-scheme: light)';
  */
 export function parseTheme(raw: string | null): ForgeThemeChoice {
   if (raw === null) return DEFAULT_THEME;
+  let stored: unknown;
   try {
-    return storedThemeSchema.parse(JSON.parse(raw));
+    stored = JSON.parse(raw);
   } catch {
     return DEFAULT_THEME;
   }
+  if (typeof stored !== 'object' || stored === null || Array.isArray(stored)) {
+    return DEFAULT_THEME;
+  }
+  // localStorage is user-editable, so each field is validated on its own: a
+  // bad mode doesn't throw away a good palette. Mirrors the boot script.
+  const { palette, mode } = stored as Record<string, unknown>;
+  return {
+    palette: isOneOf(PALETTES, palette) ? palette : DEFAULT_THEME.palette,
+    mode: isOneOf(MODES, mode) ? mode : DEFAULT_THEME.mode,
+  };
 }
 
 /**

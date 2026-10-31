@@ -14,26 +14,12 @@ import { SUPABASE_REST_CACHE } from './src/lib/offline-cache.js';
 const VENDOR_CHUNKS: ReadonlyArray<readonly [name: string, pattern: RegExp]> = [
   ['supabase', /\/node_modules\/(@supabase|iceberg-js)\//],
   ['react', /\/node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//],
-  ['zod', /\/node_modules\/zod\//],
   ['query', /\/node_modules\/@tanstack\//],
 ];
-
-/**
- * zod 4 ships `@__PURE__` comments in positions Rollup can't interpret, and
- * Rollup warns once per file. The cause is upstream, not in Forge, so only
- * that warning from those exact files is dropped. Anything else still prints.
- */
-const ZOD_ANNOTATION_FILE = /\/node_modules\/zod\/v4\/core\/(regexes|util)\.js$/;
 
 export default defineConfig({
   build: {
     rollupOptions: {
-      onwarn(warning, defaultHandler) {
-        if (warning.code === 'INVALID_ANNOTATION' && ZOD_ANNOTATION_FILE.test(warning.id ?? '')) {
-          return;
-        }
-        defaultHandler(warning);
-      },
       output: {
         manualChunks(id) {
           return VENDOR_CHUNKS.find(([, pattern]) => pattern.test(id))?.[0];
