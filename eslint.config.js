@@ -38,4 +38,37 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Keep zod out of the UI bundle (FO-30). The shared root runs z.enum() at
+    // load, so even a constant imported from it drags the whole validator in.
+    // Two globs, not `*.{ts,tsx}`: the root brace-expansion override breaks
+    // minimatch 3's brace handling, and ESLint crashes on `{a,b}` patterns.
+    files: ['forge-ui/src/**/*.ts', 'forge-ui/src/**/*.tsx'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@forge/shared',
+              allowTypeImports: true,
+              message: 'Import values from @forge/shared/constants; the root pulls zod in.',
+            },
+            {
+              name: 'zod',
+              allowTypeImports: true,
+              message: 'zod is kept out of the UI bundle (FO-30); write a small guard instead.',
+            },
+          ],
+          patterns: [
+            {
+              group: ['zod/*'],
+              allowTypeImports: true,
+              message: 'zod is kept out of the UI bundle (FO-30); write a small guard instead.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

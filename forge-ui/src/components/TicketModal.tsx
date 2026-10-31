@@ -1,4 +1,5 @@
-import { PRIORITIES, type Priority, type Project, type Tag } from '@forge/shared';
+import type { Priority, Project, Tag } from '@forge/shared';
+import { PRIORITIES } from '@forge/shared/constants';
 import { X } from 'lucide-react';
 import {
   useEffect,

@@ -1,4 +1,4 @@
-import { TICKET_STATUSES, PRIORITIES } from '@forge/shared';
+import { TICKET_STATUSES, PRIORITIES } from '@forge/shared/constants';
 import { describe, it, expect } from 'vitest';
 import { STATUS_ORDER, STATUS_META, PRIORITY_META } from './constants.js';
 

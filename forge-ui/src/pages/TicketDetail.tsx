@@ -1,4 +1,5 @@
-import { PRIORITIES, type Priority, type TicketStatus, TICKET_STATUSES } from '@forge/shared';
+import type { Priority, TicketStatus } from '@forge/shared';
+import { PRIORITIES, TICKET_STATUSES } from '@forge/shared/constants';
 import { ArrowLeft, Zap } from 'lucide-react';
 import { useState, type ReactElement, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
