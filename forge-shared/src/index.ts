@@ -4,41 +4,33 @@
  * Single source of truth for the entity shapes and the fixed value sets
  * (status / priority / authors) used by both the MCP server and the web UI.
  *
- * We use Zod `z.enum` rather than TypeScript `enum` for the fixed sets so the
- * same definition gives us both a runtime validator (for MCP tool input and DB
- * CHECK-constraint parity) and a derived static type — no duplication, no drift.
+ * The fixed sets live in `constants.ts` as plain `as const` arrays, with their
+ * static types derived from them. This module builds a Zod `z.enum` from each
+ * array, giving the MCP server a runtime validator (for tool input and DB
+ * CHECK-constraint parity) from the same definition — no duplication, no drift.
  */
 import { z } from 'zod';
+import {
+  AGENT_IDENTITIES,
+  COMMENT_AUTHORS,
+  PRIORITIES,
+  TICKET_CREATORS,
+  TICKET_STATUSES,
+  type CommentAuthor,
+  type Priority,
+  type TicketCreator,
+  type TicketStatus,
+} from './constants.js';
 
-// --- Fixed value sets (mirror the Postgres CHECK constraints) -------------
+export * from './constants.js';
 
-export const TICKET_STATUSES = ['backlog', 'in_dev', 'review', 'done'] as const;
+// --- Runtime validators for the fixed value sets ---------------------------
+
 export const ticketStatusSchema = z.enum(TICKET_STATUSES);
-export type TicketStatus = z.infer<typeof ticketStatusSchema>;
-
-export const PRIORITIES = ['low', 'medium', 'high'] as const;
 export const prioritySchema = z.enum(PRIORITIES);
-export type Priority = z.infer<typeof prioritySchema>;
-
-/** Who/what created a ticket. */
-export const TICKET_CREATORS = ['human', 'claude-code', 'codex', 'hermes'] as const;
 export const ticketCreatorSchema = z.enum(TICKET_CREATORS);
-export type TicketCreator = z.infer<typeof ticketCreatorSchema>;
-
-/** Comment authors — superset of ticket creators plus the automated `system`. */
-export const COMMENT_AUTHORS = ['human', 'claude-code', 'codex', 'hermes', 'system'] as const;
 export const commentAuthorSchema = z.enum(COMMENT_AUTHORS);
-export type CommentAuthor = z.infer<typeof commentAuthorSchema>;
-
-/**
- * Identities an MCP client can authenticate as, each backed by its own API key.
- * A subset of the ticket creators: `human` writes arrive through the web UI and
- * `system` comments are written by a database trigger, so neither is reachable
- * over MCP.
- */
-export const AGENT_IDENTITIES = ['claude-code', 'codex', 'hermes'] as const;
 export const agentIdentitySchema = z.enum(AGENT_IDENTITIES);
-export type AgentIdentity = z.infer<typeof agentIdentitySchema>;
 
 // --- Entities (mirror the `db/schema.sql` tables) -------------------------
 
